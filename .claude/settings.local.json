@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(node -e ' *)",
+      "Bash(npx vite *)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('exports',{}\\), indent=2\\)\\)\")",
+      "Bash(node -e \"const p=require\\('./node_modules/@builder.io/html-to-figma/package.json'\\); console.log\\(JSON.stringify\\(p.exports,null,2\\)\\)\")",
+      "WebSearch"
+    ]
+  }
+}
