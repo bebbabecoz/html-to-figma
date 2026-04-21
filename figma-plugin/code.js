@@ -5,7 +5,8 @@ figma.showUI(__html__, { width: 440, height: 580, title: 'HTML to Figma Importer
 
 figma.ui.onmessage = async (msg) => {
   if (msg.type === 'import') {
-    await runImport(msg.json);
+    // Accept layers[] directly (from HTML conversion in ui.html)
+    await runImport(msg.layers);
   }
   if (msg.type === 'close') {
     figma.closePlugin();
@@ -14,18 +15,9 @@ figma.ui.onmessage = async (msg) => {
 
 // ─── Main import flow ─────────────────────────────────────────────────────────
 
-async function runImport(jsonString) {
+async function runImport(layers) {
   try {
-    let data;
-    try {
-      data = JSON.parse(jsonString);
-    } catch (e) {
-      return send('error', 'JSON ไม่ถูกต้อง: ' + e.message);
-    }
-
-    // Accept both { layers: [...] } and raw array
-    const layers = Array.isArray(data) ? data : (data.layers || []);
-    if (!layers.length) return send('error', 'ไม่พบ layers ใน JSON');
+    if (!layers || !layers.length) return send('error', 'ไม่พบ layers ที่แปลงได้');
 
     send('progress', 'กำลังโหลด fonts…');
     await preloadFonts(layers);

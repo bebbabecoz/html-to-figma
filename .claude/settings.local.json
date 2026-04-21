@@ -7,7 +7,10 @@
       "Bash(npx vite *)",
       "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('exports',{}\\), indent=2\\)\\)\")",
       "Bash(node -e \"const p=require\\('./node_modules/@builder.io/html-to-figma/package.json'\\); console.log\\(JSON.stringify\\(p.exports,null,2\\)\\)\")",
-      "WebSearch"
+      "WebSearch",
+      "Bash(node scripts/build-plugin.js)",
+      "Bash(mv G:/Project/html-to-figma-json/scripts/build-plugin.js G:/Project/html-to-figma-json/scripts/build-plugin.cjs)",
+      "Bash(node scripts/build-plugin.cjs)"
     ]
   }
 }

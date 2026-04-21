@@ -2,8 +2,6 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>HTML to Figma Importer</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -15,11 +13,11 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
 
-  /* Header */
   .header {
-    padding: 16px 18px 12px;
+    padding: 14px 16px 12px;
     border-bottom: 1px solid #2d2d4a;
     display: flex;
     align-items: center;
@@ -27,93 +25,143 @@
     flex-shrink: 0;
   }
   .logo {
-    width: 28px; height: 28px;
+    width: 30px; height: 30px;
     border-radius: 8px;
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
+    font-size: 16px; flex-shrink: 0;
   }
-  .header-text h1 { font-size: 13px; font-weight: 600; color: #fff; }
-  .header-text p  { font-size: 11px; color: #64748b; margin-top: 1px; }
+  .header h1 { font-size: 13px; font-weight: 600; color: #fff; }
+  .header p  { font-size: 11px; color: #4a5568; margin-top: 1px; }
 
-  /* Body */
-  .body { flex: 1; overflow-y: auto; padding: 14px 18px; display: flex; flex-direction: column; gap: 12px; }
-
-  label { font-size: 11px; font-weight: 500; color: #94a3b8; display: block; margin-bottom: 5px; }
-
-  /* Dropzone */
-  .drop-zone {
-    border: 2px dashed #3d3d5c;
-    border-radius: 10px;
+  .body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     padding: 16px;
-    text-align: center;
+    gap: 12px;
+    overflow-y: auto;
+  }
+
+  /* ── Drop Zone ── */
+  .drop-zone {
+    flex: 1;
+    min-height: 180px;
+    border: 2px dashed #3d3d5c;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     cursor: pointer;
     transition: border-color .15s, background .15s;
-    background: #16213e;
+    background: #12122a;
     position: relative;
+    padding: 24px;
+    text-align: center;
   }
-  .drop-zone.drag-over { border-color: #6366f1; background: rgba(99,102,241,.08); }
-  .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-  .drop-zone .dz-icon { font-size: 22px; margin-bottom: 6px; }
-  .drop-zone .dz-text { font-size: 12px; color: #64748b; }
-  .drop-zone .dz-text span { color: #6366f1; }
-  .file-name {
-    font-size: 11px; color: #a5b4fc; background: rgba(99,102,241,.15);
-    border-radius: 6px; padding: 4px 8px; margin-top: 6px; display: inline-block;
+  .drop-zone:hover    { border-color: #5b5bf0; background: rgba(99,102,241,.05); }
+  .drop-zone.dragover { border-color: #6366f1; background: rgba(99,102,241,.1); }
+  .drop-zone input    { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+  .dz-icon { font-size: 32px; line-height: 1; }
+  .dz-title { font-size: 13px; font-weight: 600; color: #c4b5fd; }
+  .dz-sub   { font-size: 11px; color: #4a5568; }
+  .dz-sub span { color: #6366f1; }
+
+  /* file loaded state */
+  .file-badge {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: rgba(99,102,241,.15);
+    border: 1px solid rgba(99,102,241,.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #a5b4fc;
+    word-break: break-all;
   }
-
-  .divider { display: flex; align-items: center; gap: 8px; color: #3d3d5c; font-size: 11px; }
-  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #2d2d4a; }
-
-  textarea {
-    width: 100%; height: 140px; resize: vertical;
-    background: #0f0f1a; border: 1px solid #2d2d4a; border-radius: 10px;
-    color: #94a3b8; font-family: 'Menlo', 'Courier New', monospace; font-size: 11px;
-    padding: 10px; line-height: 1.5;
-    transition: border-color .15s;
-    outline: none;
+  .file-badge.show { display: flex; }
+  .file-badge-icon { font-size: 16px; flex-shrink: 0; }
+  .file-badge-name { flex: 1; }
+  .file-badge-clear {
+    background: none; border: none; color: #64748b;
+    cursor: pointer; font-size: 14px; padding: 0; flex-shrink: 0;
   }
-  textarea:focus { border-color: #4f46e5; }
-  textarea::placeholder { color: #3d3d5c; }
+  .file-badge-clear:hover { color: #e2e8f0; }
 
-  /* Status */
+  /* ── Status ── */
   .status {
-    border-radius: 8px; padding: 9px 12px; font-size: 11px; display: none;
-    align-items: flex-start; gap: 8px;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 11.5px;
+    line-height: 1.5;
+    display: none;
+    gap: 8px;
+    align-items: flex-start;
   }
   .status.show { display: flex; }
   .status.info    { background: rgba(99,102,241,.12); color: #a5b4fc; border: 1px solid rgba(99,102,241,.2); }
   .status.success { background: rgba(16,185,129,.1);  color: #6ee7b7; border: 1px solid rgba(16,185,129,.2); }
   .status.error   { background: rgba(239,68,68,.1);   color: #fca5a5; border: 1px solid rgba(239,68,68,.2); }
-  .status-icon { font-size: 14px; flex-shrink: 0; }
-  .status-text { line-height: 1.45; }
+  .status-icon { flex-shrink: 0; }
+  .status-msg  { flex: 1; }
 
-  /* Footer */
-  .footer {
-    padding: 12px 18px; border-top: 1px solid #2d2d4a; flex-shrink: 0;
-    display: flex; gap: 8px;
-  }
-  button {
-    flex: 1; height: 34px; border-radius: 8px; border: none; cursor: pointer;
-    font-size: 12px; font-weight: 600; transition: opacity .15s, transform .1s;
-  }
-  button:active { transform: scale(.97); }
-  .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
-  .btn-primary:hover { opacity: .9; }
-  .btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; }
-  .btn-secondary { background: #2d2d4a; color: #94a3b8; flex: 0 0 80px; }
-  .btn-secondary:hover { background: #3d3d5c; }
-
-  /* Loading spinner */
   @keyframes spin { to { transform: rotate(360deg); } }
   .spinner {
-    width: 14px; height: 14px; border: 2px solid rgba(165,180,252,.3);
-    border-top-color: #a5b4fc; border-radius: 50%;
-    animation: spin .7s linear infinite; flex-shrink: 0; margin-top: 1px;
+    width: 13px; height: 13px;
+    border: 2px solid rgba(165,180,252,.3);
+    border-top-color: #a5b4fc;
+    border-radius: 50%;
+    animation: spin .65s linear infinite;
+    flex-shrink: 0; margin-top: 1px;
   }
 
+  /* ── Progress bar ── */
+  .progress-wrap {
+    height: 3px; background: #2d2d4a; border-radius: 2px;
+    overflow: hidden; display: none;
+  }
+  .progress-wrap.show { display: block; }
+  .progress-bar {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    border-radius: 2px;
+    transition: width .3s ease;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    padding: 12px 16px;
+    border-top: 1px solid #2d2d4a;
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  button {
+    height: 34px; border-radius: 8px; border: none;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: opacity .15s, transform .1s;
+  }
+  button:active { transform: scale(.97); }
+
+  .btn-primary {
+    flex: 1;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+  }
+  .btn-primary:hover    { opacity: .88; }
+  .btn-primary:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+
+  .btn-secondary {
+    width: 72px;
+    background: #252540; color: #64748b; border: 1px solid #2d2d4a;
+  }
+  .btn-secondary:hover { background: #2d2d4a; color: #94a3b8; }
+
   ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #3d3d5c; border-radius: 2px; }
 </style>
 </head>
@@ -121,118 +169,293 @@
 
 <div class="header">
   <div class="logo">🎨</div>
-  <div class="header-text">
+  <div>
     <h1>HTML to Figma Importer</h1>
-    <p>นำเข้า builder.json จาก web app</p>
+    <p>Drop ไฟล์ .html → สร้าง Figma layers ทันที</p>
   </div>
 </div>
 
 <div class="body">
-  <!-- File drop zone -->
-  <div>
-    <label>อัปโหลดไฟล์ builder.json</label>
-    <div class="drop-zone" id="dropZone">
-      <input type="file" id="fileInput" accept=".json" />
-      <div class="dz-icon">📂</div>
-      <div class="dz-text">ลากไฟล์มาวาง หรือ <span>คลิกเพื่อเลือก</span></div>
-      <div class="file-name" id="fileName" style="display:none"></div>
-    </div>
+
+  <!-- Drop zone -->
+  <div class="drop-zone" id="dropZone">
+    <input type="file" id="fileInput" accept=".html,.htm" />
+    <div class="dz-icon" id="dzIcon">📄</div>
+    <div class="dz-title" id="dzTitle">Drop ไฟล์ HTML ที่นี่</div>
+    <div class="dz-sub" id="dzSub">หรือ <span>คลิกเพื่อเลือกไฟล์</span> · .html, .htm</div>
   </div>
 
-  <div class="divider">หรือ</div>
+  <!-- File badge -->
+  <div class="file-badge" id="fileBadge">
+    <span class="file-badge-icon">📄</span>
+    <span class="file-badge-name" id="fileBadgeName"></span>
+    <button class="file-badge-clear" id="fileClear" title="เลือกไฟล์ใหม่">✕</button>
+  </div>
 
-  <!-- Paste JSON -->
-  <div>
-    <label>วาง JSON โดยตรง</label>
-    <textarea id="jsonInput" placeholder='{ "layers": [...], "images": {} }'></textarea>
+  <!-- Progress -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-bar" id="progressBar"></div>
   </div>
 
   <!-- Status -->
   <div class="status" id="status">
     <div class="status-icon" id="statusIcon"></div>
-    <div class="status-text" id="statusText"></div>
+    <div class="status-msg"  id="statusMsg"></div>
   </div>
+
 </div>
 
 <div class="footer">
   <button class="btn-secondary" id="btnClose">ปิด</button>
-  <button class="btn-primary" id="btnImport">🚀 Import to Figma</button>
+  <button class="btn-primary"   id="btnImport" disabled>🚀 Import to Figma</button>
 </div>
 
 <script>
-  const jsonInput = document.getElementById('jsonInput');
-  const fileInput = document.getElementById('fileInput');
-  const dropZone  = document.getElementById('dropZone');
-  const fileName  = document.getElementById('fileName');
-  const btnImport = document.getElementById('btnImport');
-  const btnClose  = document.getElementById('btnClose');
-  const statusEl  = document.getElementById('status');
-  const statusIcon = document.getElementById('statusIcon');
-  const statusText = document.getElementById('statusText');
+var BROWSER_JS_SRC = "var htmlToFigma=function(e){var t={};function n(o){if(t[o])return t[o].exports;var r=t[o]={i:o,l:!1,exports:{}};return e[o].call(r.exports,r,r.exports,n),r.l=!0,r.exports}return n.m=e,n.c=t,n.d=function(e,t,o){n.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:o})},n.r=function(e){\"undefined\"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:\"Module\"}),Object.defineProperty(e,\"__esModule\",{value:!0})},n.t=function(e,t){if(1&t&&(e=n(e)),8&t)return e;if(4&t&&\"object\"==typeof e&&e&&e.__esModule)return e;var o=Object.create(null);if(n.r(o),Object.defineProperty(o,\"default\",{enumerable:!0,value:e}),2&t&&\"string\"!=typeof e)for(var r in e)n.d(o,r,function(t){return e[t]}.bind(null,r));return o},n.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return n.d(t,\"a\",t),t},n.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},n.p=\"\",n(n.s=0)}([function(e,t,n){\"use strict\";function o(e,t){return 1===t.length?t[0]:t.reduce((t,n)=>{if(!t)return n;const o=r(n)[e],i=r(t)[e];if(\"left\"===e||\"top\"===e){if(o<i)return n}else if(o>i)return n;return t},null)}function r(e){if(getComputedStyle(e).display.includes(\"inline\")&&e.children.length){const t=e.getBoundingClientRect(),n=function(e){if(!e.length)return null;const{top:t}=r(o(\"top\",e)),{left:n}=r(o(\"left\",e)),{bottom:i}=r(o(\"bottom\",e)),{right:l}=r(o(\"right\",e));return{top:t,left:n,bottom:i,right:l,width:l-n,height:i-t}}(Array.from(e.children));return t.width>n.width?Object.assign(Object.assign({},n),{width:t.width,left:t.left,right:t.right}):n}return e.getBoundingClientRect()}n.r(t);const i=e=>e&&Array.isArray(e.children);function l(e,t,n){e&&(t(e,n),i(e)&&e.children.forEach(n=>l(n,t,e)))}function c(e){let t=e;do{const e=getComputedStyle(t);if(\"none\"===e.display||\"hidden\"===e.visibility)return!0;if(\"visible\"!==e.overflow&&t.getBoundingClientRect().height<1)return!0}while(t=t.parentElement);return!1}function s(e){let t=e instanceof Node&&e.nodeType===Node.TEXT_NODE?e.parentElement:e;const n=[];for(;t&&(t=t.parentElement);)n.push(t);return n}function a(e){return s(e).length}const d=e=>{if(!e)return null;const t=e.match(/([\\d\\.]+)px/),n=null==t?void 0:t[1];return n?{unit:\"PIXELS\",value:parseFloat(n)}:null};function u(e){if(!e)return null;const[t,n,o,r,i,l]=e.match(/rgba?\\(([\\d\\.]+), ([\\d\\.]+), ([\\d\\.]+)(, ([\\d\\.]+))?\\)/)||[],c=l&&0===parseFloat(l);return n&&o&&r&&!c?{r:parseInt(n)/255,g:parseInt(o)/255,b:parseInt(r)/255,a:l?parseFloat(l):1}:null}const f=/^[0-9]+[a-zA-Z%]+?$/,h=e=>{if(!/px$/.test(e)&&\"0\"!==e)return 0;const t=parseFloat(e);return isNaN(t)?0:t},p=e=>{if(e.startsWith(\"rgb\")){const t=e.match(/(rgba?\\(.+?\\))(.+)/);t&&(e=(t[2]+\" \"+t[1]).trim())}const t=e.split(/\\s(?![^(]*\\))/),n=t.includes(\"inset\"),o=t.slice(-1)[0],r=(e=>\"0\"===e||f.test(e))(o)?\"rgba(0, 0, 0, 1)\":o,i=t.filter(e=>\"inset\"!==e).filter(e=>e!==r).map(h),[l,c,s,a]=i;return{inset:n,offsetX:l,offsetY:c,blurRadius:s,spreadRadius:a,color:r}};function g(e,t,n){e.data||(e.data={}),e.data[t]=n}const m=[\"opacity\",\"backgroundColor\",\"border\",\"borderTop\",\"borderLeft\",\"borderRight\",\"borderBottom\",\"borderRadius\",\"backgroundImage\",\"borderColor\",\"boxShadow\"];const y=e=>e[0].toUpperCase()+e.substring(1),b=({borderWidth:e,borderType:t,borderColor:n})=>e&&\"0\"!==e&&\"none\"!==t&&n;function E({dir:e,rect:t,computedStyle:n,el:o}){const r=n[\"border\"+y(e)];if(r){const n=r.match(/^([\\d\\.]+)px\\s*(\\w+)\\s*(.*)$/);if(n){const[r,i,l,c]=n;if(b({borderWidth:i,borderType:l,borderColor:c})){const n=u(c);if(n){const r=[\"top\",\"bottom\"].includes(e)?t.width:parseFloat(i),l=[\"left\",\"right\"].includes(e)?t.height:parseFloat(i),c={type:\"SOLID\",color:{r:n.r,b:n.b,g:n.g},opacity:n.a||1};return{ref:o,type:\"RECTANGLE\",x:\"left\"===e?t.left-r:\"right\"===e?t.right:t.left,y:\"top\"===e?t.top-l:\"bottom\"===e?t.bottom:t.top,width:r,height:l,fills:[c]}}}}}}const x=e=>{for(const t of Array.from(e.querySelectorAll(\"use\")))try{const e=t.href.baseVal,n=document.querySelector(e);n&&(t.outerHTML=n.innerHTML)}catch(e){console.warn(\"Error querying <use> tag href\",e)}},S=({node:e})=>{var t;const n=(null===(t=e.textContent)||void 0===t?void 0:t.trim())||\"\";if(!n.length)return;const o=e.parentElement;if(o){if(c(o))return;const t=getComputedStyle(o),r=document.createRange();r.selectNode(e);const i=(e=>\"symbol\"==typeof e?null:JSON.parse(JSON.stringify(e)))(r.getBoundingClientRect()),l=d(t.lineHeight);if(r.detach(),l&&i.height<l.value){const e=l.value-i.height;i.top-=e/2,i.height=l.value}if(i.height<1||i.width<1)return;const s={x:Math.round(i.left),ref:e,y:Math.round(i.top),width:Math.round(i.width),height:Math.round(i.height),type:\"TEXT\",characters:n.replace(/\\s+/g,\" \")},a=[],f=u(t.color);f&&a.push({type:\"SOLID\",color:{r:f.r,g:f.g,b:f.b},opacity:f.a||1}),a.length&&(s.fills=a);const h=d(t.letterSpacing);h&&(s.letterSpacing=h),l&&(s.lineHeight=l);const{textTransform:p}=t;switch(p){case\"uppercase\":s.textCase=\"UPPER\";break;case\"lowercase\":s.textCase=\"LOWER\";break;case\"capitalize\":s.textCase=\"TITLE\"}const g=d(t.fontSize);return g&&(s.fontSize=Math.round(g.value)),t.fontFamily&&(s.fontFamily=t.fontFamily),[\"underline\",\"strikethrough\"].includes(t.textDecoration)&&(s.textDecoration=t.textDecoration.toUpperCase()),[\"left\",\"center\",\"right\",\"justified\"].includes(t.textAlign)&&(s.textAlignHorizontal=t.textAlign.toUpperCase()),s}},T=({layer:e,root:t})=>{let n=null;try{l(t,t=>{if(t&&t.children&&t.children.includes(e))throw n=t,\"DONE\"})}catch(e){\"DONE\"===e||console.error(e instanceof Error?e.message:e)}return n},M=({root:e,layers:t})=>{e.children=t.slice(1),(({root:e,layers:t})=>{const n=new WeakMap;t.forEach(e=>{e.ref&&n.set(e.ref,e)});let o=!0,c=0;for(;o;){if(o=!1,c++>1e4){console.error(\"Too many tree iterations 1\");break}l(e,(t,r)=>{const l=t.ref;let c=l&&l.parentElement||null;do{if(c===document.body)break;if(c&&c!==document.body){const l=n.get(c);if(l===r)break;if(l&&l!==e){if(!i(l)){let i=l.ref;i&&i instanceof Node&&i.nodeType===Node.TEXT_NODE&&(i=i.parentElement);const s={type:\"FRAME\",clipsContent:!!(i instanceof Element&&\"visible\"!==getComputedStyle(i).overflow),x:l.x,y:l.y,width:l.width,height:l.height,ref:l.ref,backgrounds:[],children:[l,t]},a=T({layer:l,root:e});if(!a){console.warn(\"\\n\\nCANT FIND PARENT\\n\",JSON.stringify(Object.assign(Object.assign({},l),{ref:null})));continue}if(r){const e=r.children.indexOf(t);r.children.splice(e,1)}delete l.ref;const d=a.children.indexOf(l);return n.set(c,s),a.children.splice(d,1,s),void(o=!0)}if(r){const e=r.children.indexOf(t);return r.children.splice(e,1),l.children.push(t),void(o=!0)}}}}while(c&&(c=c.parentElement))})}let d=!0,u=0;for(;d;){if(u++>1e4){console.error(\"Too many tree iterations 2\");break}d=!1,l(e,(e,t)=>{if(!d&&\"FRAME\"===e.type){const t=e.ref;if(e.children&&e.children.length>2){const o=e.children&&e.children.map(e=>e.ref);let i=e.ref,l=a(i);for(const t of o){const n=o.filter(e=>e!==t),r=s(t);for(const t of n){const n=s(t);for(const t of n)if(r.includes(t)&&e.ref.contains(t)){const e=a(t);e>l&&(i=t,l=e)}}}if(i&&i!==e.ref){const o=e.children.filter(e=>i.contains(e.ref));if(o.length!==e.children.length){const l=r(i),c={type:\"FRAME\",clipsContent:!!(i instanceof Element&&\"visible\"!==getComputedStyle(i).overflow),ref:i,x:l.left,y:l.top,width:l.width,height:l.height,backgrounds:[],children:o};n.set(i,t);let s=e.children.length-1;for(const t of o){const n=e.children.indexOf(t);n>-1&&n<s&&(s=n)}e.children.splice(s,0,c);for(const t of o){const n=e.children.indexOf(t);n>-1&&e.children.splice(n,1)}d=!0}}}}})}l(e,e=>{if(\"FRAME\"===e.type||\"GROUP\"===e.type){const{x:t,y:n}=e;(t||n)&&l(e,o=>{o!==e&&(o.x=o.x-t,o.y=o.y-n)})}})})({root:e,layers:t});const n=[e];return function(e){e.forEach(e=>{l(e,e=>{if(\"SVG\"===e.type)e.constraints={horizontal:\"CENTER\",vertical:\"MIN\"};else{const t=e.ref;if(t){const n=t instanceof HTMLElement?t:t.parentElement,o=null==n?void 0:n.parentElement;if(n&&o){const t=n.style.display;n.style.setProperty(\"display\",\"none\",\"!important\");let r=getComputedStyle(n);const i=null==r?void 0:r.width.trim().endsWith(\"px\"),l=null==r?void 0:r.height.trim().endsWith(\"px\");n.style.display=t;const c=getComputedStyle(o);let s=\"auto\"===r.marginLeft,a=\"auto\"===r.marginRight,d=\"auto\"===r.marginTop,u=\"auto\"===r.marginBottom;if(r=getComputedStyle(n),[\"absolute\",\"fixed\"].includes(r.position)&&g(e,\"position\",r.position),l&&g(e,\"heightType\",\"fixed\"),i&&g(e,\"widthType\",\"fixed\"),r.display&&r.display.includes(\"inline\")){const t=c.textAlign;\"center\"===t?(s=!0,a=!0):\"right\"===t&&(s=!0),\"middle\"===r.verticalAlign?(d=!0,u=!0):\"bottom\"===r.verticalAlign&&(d=!0,u=!1),g(e,\"widthType\",\"shrink\")}const f=\"flex\"===c.display&&(\"row\"===c.flexDirection&&c.justifyContent||\"column\"===c.flexDirection&&c.alignItems);\"center\"===f?(s=!0,a=!0):f&&(f.includes(\"end\")||f.includes(\"right\"))&&(s=!0,a=!1);const h=\"flex\"===c.display&&(\"column\"===c.flexDirection&&c.justifyContent||\"row\"===c.flexDirection&&c.alignItems);\"center\"===h?(d=!0,u=!0):h&&(h.includes(\"end\")||h.includes(\"bottom\"))&&(d=!0,u=!1),\"TEXT\"===e.type&&(\"center\"===r.textAlign?(s=!0,a=!0):\"right\"===r.textAlign&&(s=!0,a=!1)),e.constraints={horizontal:s&&a?\"CENTER\":s?\"MAX\":\"SCALE\",vertical:u&&d?\"CENTER\":d?\"MAX\":\"MIN\"}}}else e.constraints={horizontal:\"SCALE\",vertical:\"MIN\"}}})})}(n),n};n.d(t,\"htmlToFigma\",function(){return R});const v=e=>{const t=e=>{var n;return Array.from((null===(n=e.shadowRoot)||void 0===n?void 0:n.querySelectorAll(\"*\"))||[]).reduce((e,n)=>[...e,n,...t(n)],[])};return Array.from(e.querySelectorAll(\"*\")).reduce((e,n)=>[...e,n,...t(n)],[])};const w=e=>{const t=[];if(c(e))return[];if(e instanceof SVGSVGElement)return t.push((e=>{const t=e.getBoundingClientRect();return{type:\"SVG\",ref:e,svg:e.outerHTML,x:Math.round(t.left),y:Math.round(t.top),width:Math.round(t.width),height:Math.round(t.height)}})(e)),t;if(e instanceof SVGElement)return[];if(e.parentElement instanceof HTMLPictureElement&&e instanceof HTMLSourceElement||e instanceof HTMLPictureElement)return[];const n=function(e,t){if(!(e instanceof HTMLElement||e instanceof SVGElement))return{};const n=getComputedStyle(e,t),o=n.color,r={transform:\"none\",opacity:\"1\",borderRadius:\"0px\",backgroundImage:\"none\",backgroundPosition:\"0% 0%\",backgroundSize:\"auto\",backgroundColor:\"rgba(0, 0, 0, 0)\",backgroundAttachment:\"scroll\",border:\"0px none \"+o,borderTop:\"0px none \"+o,borderBottom:\"0px none \"+o,borderLeft:\"0px none \"+o,borderRight:\"0px none \"+o,borderWidth:\"0px\",borderColor:o,borderStyle:\"none\",boxShadow:\"none\",fontWeight:\"400\",textAlign:\"start\",justifyContent:\"normal\",alignItems:\"normal\",alignSelf:\"auto\",flexGrow:\"0\",textDecoration:\"none solid \"+o,lineHeight:\"normal\",letterSpacing:\"normal\",backgroundRepeat:\"repeat\",zIndex:\"auto\"};return function(e,t){const n={};return t.forEach(t=>{e[t]&&e[t]!==r[t]&&(n[t]=e[t])}),n}(n,m)}(e),o=getComputedStyle(e);if((function(e){return Object.keys(e).length}(n)||e instanceof HTMLImageElement||e instanceof HTMLVideoElement)&&\"none\"!==o.display){const n=r(e);if(n.width>=1&&n.height>=1){const r=[],i=u(o.backgroundColor);if(i){const e={type:\"SOLID\",color:{r:i.r,g:i.g,b:i.b},opacity:i.a||1};r.push(e)}const l={type:\"RECTANGLE\",ref:e,x:Math.round(n.left),y:Math.round(n.top),width:Math.round(n.width),height:Math.round(n.height),fills:r},c=(({computedStyle:{border:e}})=>{if(e){const t=e.match(/^([\\d\\.]+)px\\s*(\\w+)\\s*(.*)$/);if(t){const[e,n,o,r]=t;if(b({borderWidth:n,borderType:o,borderColor:r})){const e=u(r);if(e)return{strokes:[{type:\"SOLID\",color:{r:e.r,b:e.b,g:e.g},opacity:e.a||1}],strokeWeight:Math.round(parseFloat(n))}}}}})({computedStyle:o});if(c&&Object.assign(l,c),!l.strokes)for(const r of[\"top\",\"left\",\"right\",\"bottom\"]){const i=E({dir:r,rect:n,computedStyle:o,el:e});i&&t.push(i)}const s=(({computedStyle:e,el:t})=>{if(t instanceof SVGSVGElement){return{url:`data:image/svg+xml,${encodeURIComponent(t.outerHTML.replace(/\\s+/g,\" \"))}`,type:\"IMAGE\",scaleMode:\"FILL\",imageHash:null}}{const n={type:\"IMAGE\",scaleMode:\"contain\"===e.objectFit?\"FIT\":\"FILL\",imageHash:null};if(t instanceof HTMLImageElement){const e=t.currentSrc;if(e)return Object.assign({url:e},n)}else if(t instanceof HTMLVideoElement){const e=t.poster;if(e)return Object.assign({url:e},n)}}if(e.backgroundImage&&\"none\"!==e.backgroundImage){const t=e.backgroundImage.match(/url\\(['\"]?(.*?)['\"]?\\)/),n=null==t?void 0:t[1];if(n)return{url:n,type:\"IMAGE\",scaleMode:\"contain\"===e.backgroundSize?\"FIT\":\"FILL\",imageHash:null}}})({computedStyle:o,el:e});s&&(r.push(s),l.name=\"IMAGE\");const a=(({computedStyle:{boxShadow:e}})=>{if(e&&\"none\"!==e){const t=p(e),n=u(t.color);if(n){return[{color:n,type:\"DROP_SHADOW\",radius:t.blurRadius,blendMode:\"NORMAL\",visible:!0,offset:{x:t.offsetX,y:t.offsetY}}]}}})({computedStyle:o});a&&(l.effects=a);const f=(({computedStyle:e})=>{const t=d(e.borderTopLeftRadius),n=d(e.borderTopRightRadius),o=d(e.borderBottomRightRadius),r=d(e.borderBottomLeftRadius);return Object.assign(Object.assign(Object.assign(Object.assign({},t?{topLeftRadius:t.value}:{}),n?{topRightRadius:n.value}:{}),o?{bottomRightRadius:o.value}:{}),r?{bottomLeftRadius:r.value}:{})})({computedStyle:o});Object.assign(l,f),t.push(l)}}return t};function R(e=\"body\",t=!1,n=!1){n&&console.time(\"Parse dom\");const o=[],r=e instanceof HTMLElement?e:document.querySelector(e||\"body\");if(r){x(r),v(r).forEach(e=>{const t=w(e);o.push(...t)});const e=function(e){let t=null;const n=[],o=document.createTreeWalker(e,NodeFilter.SHOW_TEXT,null);for(;t=o.nextNode();)n.push(t);return n}(r);for(const t of e){const e=S({node:t});e&&o.push(e)}}const i={type:\"FRAME\",width:Math.round(window.innerWidth),height:Math.round(document.documentElement.scrollHeight),x:0,y:0,ref:document.body};o.unshift(i);const c=t?M({layers:o,root:i}):o;return function({layers:e,root:t}){e.concat([t]).forEach(e=>{l(e,e=>{delete e.ref})})}({layers:c,root:i}),n&&(console.info(\"\\n\"),console.timeEnd(\"Parse dom\")),c}}]);";
+// ─── State ────────────────────────────────────────────────────────────────────
+var htmlContent = null;
+var fileName    = null;
+var converting  = false;
 
-  // ── File handling ────────────────────────────────────────────────────────────
-  fileInput.addEventListener('change', () => readFile(fileInput.files[0]));
+// ─── Elements ─────────────────────────────────────────────────────────────────
+var dropZone    = document.getElementById('dropZone');
+var fileInput   = document.getElementById('fileInput');
+var fileBadge   = document.getElementById('fileBadge');
+var fileBadgeName = document.getElementById('fileBadgeName');
+var fileClear   = document.getElementById('fileClear');
+var progressWrap = document.getElementById('progressWrap');
+var progressBar  = document.getElementById('progressBar');
+var btnImport   = document.getElementById('btnImport');
+var btnClose    = document.getElementById('btnClose');
+var dzIcon  = document.getElementById('dzIcon');
+var dzTitle = document.getElementById('dzTitle');
+var dzSub   = document.getElementById('dzSub');
 
-  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-  dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('drag-over'));
-  dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file) readFile(file);
-  });
+// ─── File handling ────────────────────────────────────────────────────────────
+fileInput.addEventListener('change', function() {
+  if (fileInput.files && fileInput.files[0]) loadFile(fileInput.files[0]);
+});
 
-  function readFile(file) {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      jsonInput.value = e.target.result;
-      fileName.textContent = file.name;
-      fileName.style.display = 'inline-block';
-      showStatus('info', null, `โหลดไฟล์: ${file.name}`);
-    };
-    reader.readAsText(file);
+dropZone.addEventListener('dragover', function(e) {
+  e.preventDefault();
+  dropZone.classList.add('dragover');
+});
+dropZone.addEventListener('dragleave', function() {
+  dropZone.classList.remove('dragover');
+});
+dropZone.addEventListener('drop', function(e) {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (file) loadFile(file);
+});
+
+fileClear.addEventListener('click', function(e) {
+  e.stopPropagation();
+  clearFile();
+});
+
+function loadFile(file) {
+  var ext = (file.name || '').split('.').pop().toLowerCase();
+  if (ext !== 'html' && ext !== 'htm') {
+    return showStatus('error', '❌', 'กรุณาเลือกไฟล์ .html หรือ .htm เท่านั้น');
   }
-
-  // ── Import ───────────────────────────────────────────────────────────────────
-  btnImport.addEventListener('click', () => {
-    const json = jsonInput.value.trim();
-    if (!json) return showStatus('error', '⚠️', 'กรุณาวาง JSON หรืออัปโหลดไฟล์ก่อน');
-    btnImport.disabled = true;
-    showStatus('loading', null, 'กำลังนำเข้า...');
-    parent.postMessage({ pluginMessage: { type: 'import', json } }, '*');
-  });
-
-  btnClose.addEventListener('click', () => {
-    parent.postMessage({ pluginMessage: { type: 'close' } }, '*');
-  });
-
-  // ── Messages from plugin ─────────────────────────────────────────────────────
-  window.onmessage = (e) => {
-    const msg = e.data.pluginMessage;
-    if (!msg) return;
-
-    if (msg.type === 'progress') {
-      showStatus('loading', null, msg.message);
-    } else if (msg.type === 'success') {
-      btnImport.disabled = false;
-      showStatus('success', '✅', msg.message);
-    } else if (msg.type === 'error') {
-      btnImport.disabled = false;
-      showStatus('error', '❌', msg.message);
-    }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    htmlContent = e.target.result;
+    fileName    = file.name;
+    setFileLoaded(file.name);
+    showStatus('info', '📄', 'โหลดไฟล์ "' + file.name + '" แล้ว กด Import เพื่อเริ่ม');
   };
+  reader.readAsText(file);
+}
 
-  // ── Status helper ─────────────────────────────────────────────────────────────
-  function showStatus(type, icon, text) {
-    statusEl.className = 'status show ' + (type === 'loading' ? 'info' : type);
-    if (type === 'loading') {
-      statusIcon.innerHTML = '<div class="spinner"></div>';
-    } else {
-      statusIcon.textContent = icon || '';
-    }
-    statusText.textContent = text;
+function setFileLoaded(name) {
+  fileBadgeName.textContent = name;
+  fileBadge.classList.add('show');
+  dzIcon.textContent  = '✅';
+  dzTitle.textContent = 'ไฟล์พร้อมแล้ว';
+  dzSub.innerHTML     = 'กด Import หรือ Drop ไฟล์ใหม่เพื่อเปลี่ยน';
+  btnImport.disabled  = false;
+}
+
+function clearFile() {
+  htmlContent = null;
+  fileName    = null;
+  fileBadge.classList.remove('show');
+  fileInput.value = '';
+  dzIcon.textContent  = '📄';
+  dzTitle.textContent = 'Drop ไฟล์ HTML ที่นี่';
+  dzSub.innerHTML     = 'หรือ <span>คลิกเพื่อเลือกไฟล์</span> · .html, .htm';
+  btnImport.disabled  = true;
+  hideStatus();
+  setProgress(0, false);
+}
+
+// ─── Import ───────────────────────────────────────────────────────────────────
+btnImport.addEventListener('click', function() {
+  if (!htmlContent || converting) return;
+  startConversion();
+});
+
+btnClose.addEventListener('click', function() {
+  parent.postMessage({ pluginMessage: { type: 'close' } }, '*');
+});
+
+function startConversion() {
+  converting = true;
+  btnImport.disabled = true;
+  setProgress(5, true);
+  showStatus('loading', null, 'กำลัง render HTML...');
+
+  // Use inlined browser.js source (embedded at build time)
+  Promise.resolve(BROWSER_JS_SRC)
+    .then(function(browserJsSrc) {
+      setProgress(15);
+      showStatus('loading', null, 'กำลัง render HTML ใน sandbox...');
+      return runConversion(htmlContent, browserJsSrc);
+    })
+    .then(function(layers) {
+      setProgress(90);
+      showStatus('loading', null, 'กำลังส่งข้อมูลไปยัง Figma...');
+      parent.postMessage({ pluginMessage: { type: 'import', layers: layers } }, '*');
+      // success/error shown via message from code.js
+    })
+    .catch(function(err) {
+      converting = false;
+      btnImport.disabled = false;
+      setProgress(0, false);
+      showStatus('error', '❌', err.message || String(err));
+    });
+}
+
+// ─── Conversion inside hidden iframe ─────────────────────────────────────────
+function waitForImages(doc, timeout) {
+  return new Promise(function(resolve) {
+    var imgs = Array.from(doc.querySelectorAll('img')).filter(function(i) { return !i.complete; });
+    if (!imgs.length) return resolve();
+    var pending = imgs.length;
+    var timer = setTimeout(resolve, timeout || 6000);
+    function done() { if (--pending <= 0) { clearTimeout(timer); resolve(); } }
+    imgs.forEach(function(img) {
+      img.addEventListener('load',  done, { once: true });
+      img.addEventListener('error', done, { once: true });
+    });
+  });
+}
+
+function runConversion(html, browserJsSrc) {
+  return new Promise(function(resolve, reject) {
+    var iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:absolute;left:-9999px;top:-9999px;width:1440px;height:900px;border:none;pointer-events:none;';
+    document.body.appendChild(iframe);
+
+    var CHANNEL = '__h2f_' + Date.now();
+    var done = false;
+
+    var timer = setTimeout(function() {
+      if (done) return;
+      done = true;
+      cleanup(iframe);
+      reject(new Error('Conversion timeout (30s) — HTML อาจซับซ้อนเกินไป'));
+    }, 30000);
+
+    window.addEventListener('message', function handler(evt) {
+      if (evt.source !== iframe.contentWindow) return;
+      if (!evt.data || evt.data.__channel !== CHANNEL) return;
+      clearTimeout(timer);
+      window.removeEventListener('message', handler);
+      done = true;
+      cleanup(iframe);
+      if (evt.data.error) return reject(new Error(evt.data.error));
+      if (!evt.data.layers || !evt.data.layers.length) return reject(new Error('ไม่พบ elements ใน HTML ที่แปลงได้'));
+      resolve(evt.data.layers);
+    });
+
+    // Wait for iframe to load then inject scripts
+    iframe.addEventListener('load', function() {
+      setProgress(40);
+      showStatus('loading', null, 'รอรูปภาพโหลด...');
+
+      waitForImages(iframe.contentDocument, 6000).then(function() {
+        setProgress(65);
+        showStatus('loading', null, 'กำลังแปลง HTML → Figma layers...');
+
+        // Inject htmlToFigma library
+        var libScript = iframe.contentDocument.createElement('script');
+        libScript.textContent = browserJsSrc;
+        iframe.contentDocument.head.appendChild(libScript);
+
+        // Inject runner
+        var runScript = iframe.contentDocument.createElement('script');
+        runScript.textContent = [
+          '(function() {',
+          '  var CH = ' + JSON.stringify(CHANNEL) + ';',
+          '  try {',
+          '    var layers = window.htmlToFigma.htmlToFigma(document.body, true, false);',
+          '    var safe = JSON.parse(JSON.stringify(layers));',
+          '    window.parent.postMessage({ __channel: CH, layers: safe }, "*");',
+          '  } catch(e) {',
+          '    window.parent.postMessage({ __channel: CH, error: e.message }, "*");',
+          '  }',
+          '})();'
+        ].join('\n');
+        iframe.contentDocument.body.appendChild(runScript);
+      });
+    }, { once: true });
+
+    iframe.srcdoc = html;
+  });
+}
+
+function cleanup(iframe) {
+  try { document.body.removeChild(iframe); } catch(_) {}
+}
+
+// ─── Messages from code.js ───────────────────────────────────────────────────
+window.onmessage = function(e) {
+  var msg = e.data && e.data.pluginMessage;
+  if (!msg) return;
+  converting = false;
+  btnImport.disabled = false;
+  if (msg.type === 'success') {
+    setProgress(100);
+    setTimeout(function() { setProgress(0, false); }, 1500);
+    showStatus('success', '✅', msg.message);
+  } else if (msg.type === 'error') {
+    setProgress(0, false);
+    showStatus('error', '❌', msg.message);
+  } else if (msg.type === 'progress') {
+    showStatus('loading', null, msg.message);
   }
+};
+
+// ─── UI helpers ───────────────────────────────────────────────────────────────
+function showStatus(type, icon, text) {
+  var el = document.getElementById('status');
+  var iconEl = document.getElementById('statusIcon');
+  var msgEl  = document.getElementById('statusMsg');
+  el.className = 'status show ' + (type === 'loading' ? 'info' : type);
+  if (type === 'loading') {
+    iconEl.innerHTML = '<div class="spinner"></div>';
+  } else {
+    iconEl.textContent = icon || '';
+  }
+  msgEl.textContent = text;
+}
+
+function hideStatus() {
+  document.getElementById('status').className = 'status';
+}
+
+function setProgress(pct, show) {
+  progressBar.style.width = pct + '%';
+  if (show === false) {
+    progressWrap.classList.remove('show');
+  } else if (pct > 0) {
+    progressWrap.classList.add('show');
+  }
+}
 </script>
 </body>
 </html>
