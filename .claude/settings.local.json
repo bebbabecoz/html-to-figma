@@ -10,7 +10,11 @@
       "WebSearch",
       "Bash(node scripts/build-plugin.js)",
       "Bash(mv G:/Project/html-to-figma-json/scripts/build-plugin.js G:/Project/html-to-figma-json/scripts/build-plugin.cjs)",
-      "Bash(node scripts/build-plugin.cjs)"
+      "Bash(node scripts/build-plugin.cjs)",
+      "mcp__1ea7f84e-06e8-410b-a064-65211c64f2ab__get_design_context",
+      "Bash(dir \"G:\\\\Project\\\\html-to-figma-json\" /s /b /a-d)",
+      "Bash(findstr /v \"node_modules\")",
+      "Bash(findstr /v \".git\")"
     ]
   }
 }

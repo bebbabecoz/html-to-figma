@@ -5,7 +5,6 @@ figma.showUI(__html__, { width: 440, height: 580, title: 'HTML to Figma Importer
 
 figma.ui.onmessage = async (msg) => {
   if (msg.type === 'import') {
-    // Accept layers[] directly (from HTML conversion in ui.html)
     await runImport(msg.layers);
   }
   if (msg.type === 'close') {
@@ -36,7 +35,7 @@ async function runImport(layers) {
 
     figma.currentPage.selection = created;
     figma.viewport.scrollAndZoomIntoView(created);
-    send('success', `นำเข้าสำเร็จ ${created.length} layer(s)!`);
+    send('success', 'นำเข้าสำเร็จ ' + created.length + ' layer(s)!');
   } catch (e) {
     send('error', e.message || 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ');
   }
@@ -68,7 +67,7 @@ function collectFontKeys(layers, set) {
     if (layer.type === 'TEXT') {
       const fam = parseFontFamily(layer.fontFamily);
       set.add(fam + '|' + weightToStyle(layer.fontWeight));
-      set.add(fam + '|Regular'); // always pre-load Regular as fallback
+      set.add(fam + '|Regular');
     }
     if (layer.children) collectFontKeys(layer.children, set);
   }
@@ -77,7 +76,7 @@ function collectFontKeys(layers, set) {
 async function preloadFonts(layers) {
   const keys = new Set();
   collectFontKeys(layers, keys);
-  keys.add('Inter|Regular'); // final fallback
+  keys.add('Inter|Regular');
 
   await Promise.all(
     Array.from(keys).map(key => {
@@ -87,7 +86,7 @@ async function preloadFonts(layers) {
   );
 }
 
-// ─── Node builder ─────────────────────────────────────────────────────────────
+// ─── Node builder dispatcher ──────────────────────────────────────────────────
 
 async function buildNode(layer) {
   try {
@@ -96,10 +95,9 @@ async function buildNode(layer) {
       case 'RECTANGLE': return buildRect(layer);
       case 'SVG':
       case 'VECTOR':    return buildSvgPlaceholder(layer);
-      default:          return await buildFrame(layer); // FRAME, GROUP, anything else
+      default:          return await buildFrame(layer);
     }
   } catch (e) {
-    // Return error placeholder so one bad node doesn't break the whole import
     const ph = figma.createRectangle();
     ph.name = (layer.name || layer.type || '?') + ' [error]';
     ph.resize(Math.max(1, layer.width || 20), Math.max(1, layer.height || 20));
@@ -118,23 +116,30 @@ async function buildFrame(layer) {
 
   const w = Math.max(1, Math.round(layer.width)  || 100);
   const h = Math.max(1, Math.round(layer.height) || 100);
+
+  // Set initial size before auto layout so Figma has dimensions to work with
   node.resize(w, h);
   node.x = Math.round(layer.x) || 0;
   node.y = Math.round(layer.y) || 0;
 
-  // Fills — builder.io uses "backgrounds", our format uses "fills"
   applyFills(node, layer.fills || layer.backgrounds);
-
   applyStrokes(node, layer.strokes, layer.strokeWeight);
+
+  // Dashed / dotted border
+  if (layer.dashPattern && layer.dashPattern.length) {
+    try { node.dashPattern = layer.dashPattern; } catch(_) {}
+  }
+
   applyRadius(node, layer);
   applyOpacity(node, layer.opacity);
   applyEffects(node, layer.effects);
 
   if (layer.clipsContent !== undefined) node.clipsContent = layer.clipsContent;
 
-  // Auto Layout (CSS Flexbox → Figma)
+  // ── Auto Layout (CSS Flexbox mapping) ─────────────────────────────────────
   if (layer.layoutMode && layer.layoutMode !== 'NONE') {
-    node.layoutMode = layer.layoutMode; // 'HORIZONTAL' | 'VERTICAL'
+    node.layoutMode = layer.layoutMode;
+
     if (layer.itemSpacing    !== undefined) node.itemSpacing    = layer.itemSpacing;
     if (layer.paddingTop     !== undefined) node.paddingTop     = layer.paddingTop;
     if (layer.paddingRight   !== undefined) node.paddingRight   = layer.paddingRight;
@@ -142,22 +147,32 @@ async function buildFrame(layer) {
     if (layer.paddingLeft    !== undefined) node.paddingLeft    = layer.paddingLeft;
     if (layer.primaryAxisAlignItems)  node.primaryAxisAlignItems  = layer.primaryAxisAlignItems;
     if (layer.counterAxisAlignItems)  node.counterAxisAlignItems  = layer.counterAxisAlignItems;
-    if (layer.primaryAxisSizingMode)  node.primaryAxisSizingMode  = layer.primaryAxisSizingMode;
-    if (layer.counterAxisSizingMode)  node.counterAxisSizingMode  = layer.counterAxisSizingMode;
-    if (layer.layoutWrap) node.layoutWrap = layer.layoutWrap;
+    if (layer.layoutWrap)             node.layoutWrap             = layer.layoutWrap;
+
+    // Lock to FIXED sizing so frames keep exact pixel dimensions from the HTML
+    try {
+      node.primaryAxisSizingMode = 'FIXED';
+      node.counterAxisSizingMode = 'FIXED';
+    } catch(_) {}
   }
 
-  // Children
+  // ── Children ───────────────────────────────────────────────────────────────
   if (layer.children && layer.children.length) {
     for (const child of layer.children) {
       const childNode = await buildNode(child);
-      if (childNode) node.appendChild(childNode);
-    }
-    // Restore explicit size for non-auto-layout frames (auto layout resizes itself)
-    if (!layer.layoutMode || layer.layoutMode === 'NONE') {
-      node.resize(w, h);
+      if (!childNode) continue;
+
+      node.appendChild(childNode);
+
+      // Absolutely-positioned children inside auto-layout frames
+      if (layer.layoutMode && layer.layoutMode !== 'NONE' && child.layoutPositioning === 'ABSOLUTE') {
+        try { childNode.layoutPositioning = 'ABSOLUTE'; } catch(_) {}
+      }
     }
   }
+
+  // Enforce exact size AFTER children — prevents auto layout from expanding the frame
+  node.resize(w, h);
 
   return node;
 }
@@ -200,15 +215,31 @@ async function buildText(layer) {
   const family = parseFontFamily(layer.fontFamily);
   const style  = weightToStyle(layer.fontWeight);
 
-  // Try preferred font → family Regular → Inter Regular
   let loaded = { family: 'Inter', style: 'Regular' };
   for (const f of [{ family, style }, { family, style: 'Regular' }, { family: 'Inter', style: 'Regular' }]) {
     try { await figma.loadFontAsync(f); loaded = f; break; } catch (_) {}
   }
   node.fontName = loaded;
 
+  // ── IMPORTANT: set textAutoResize BEFORE characters ──────────────────────
+  // Figma API requires this order: autoResize → fontSize → characters → resize
+  // Setting characters first with NONE mode locks the size to the default box.
+  //
+  //   WIDTH_AND_HEIGHT → text expands freely, never clips (nowrap text)
+  //   HEIGHT           → fixed width from HTML, height auto-adjusts (wrapping text)
+  const autoResize = layer.textAutoResize || 'HEIGHT';
+  node.textAutoResize = autoResize;
+
+  node.fontSize = Math.max(1, layer.fontSize || 14);
+
+  // Set width BEFORE characters for HEIGHT mode so wrapping is correct
+  if (autoResize === 'HEIGHT' && layer.width > 0 && layer.height > 0) {
+    node.resize(Math.max(1, Math.round(layer.width)), Math.max(1, Math.round(layer.height)));
+  }
+
   node.characters = layer.characters || ' ';
-  node.fontSize   = Math.max(1, layer.fontSize || 14);
+  // ─────────────────────────────────────────────────────────────────────────
+
   node.x = Math.round(layer.x) || 0;
   node.y = Math.round(layer.y) || 0;
 
@@ -222,11 +253,6 @@ async function buildText(layer) {
   if (layer.textCase)      node.textCase      = layer.textCase;
   if (layer.textDecoration && layer.textDecoration !== 'NONE') {
     node.textDecoration = layer.textDecoration;
-  }
-
-  if (layer.width > 0 && layer.height > 0) {
-    node.textAutoResize = 'NONE';
-    node.resize(Math.max(1, Math.round(layer.width)), Math.max(1, Math.round(layer.height)));
   }
 
   applyOpacity(node, layer.opacity);

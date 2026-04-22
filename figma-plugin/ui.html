@@ -4,163 +4,80 @@
 <meta charset="UTF-8" />
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-    font-size: 13px;
-    background: #1a1a2e;
-    color: #e2e8f0;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    font-size: 13px; background: #1a1a2e; color: #e2e8f0;
+    height: 100vh; display: flex; flex-direction: column; overflow: hidden;
   }
-
   .header {
-    padding: 14px 16px 12px;
-    border-bottom: 1px solid #2d2d4a;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
+    padding: 14px 16px 12px; border-bottom: 1px solid #2d2d4a;
+    display: flex; align-items: center; gap: 10px; flex-shrink: 0;
   }
   .logo {
-    width: 30px; height: 30px;
-    border-radius: 8px;
+    width: 30px; height: 30px; border-radius: 8px;
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
     display: flex; align-items: center; justify-content: center;
     font-size: 16px; flex-shrink: 0;
   }
   .header h1 { font-size: 13px; font-weight: 600; color: #fff; }
   .header p  { font-size: 11px; color: #4a5568; margin-top: 1px; }
-
-  .body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 16px;
-    gap: 12px;
-    overflow-y: auto;
-  }
-
-  /* ── Drop Zone ── */
+  .body { flex: 1; display: flex; flex-direction: column; padding: 16px; gap: 12px; overflow-y: auto; }
   .drop-zone {
-    flex: 1;
-    min-height: 180px;
-    border: 2px dashed #3d3d5c;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    cursor: pointer;
-    transition: border-color .15s, background .15s;
-    background: #12122a;
-    position: relative;
-    padding: 24px;
-    text-align: center;
+    flex: 1; min-height: 180px; border: 2px dashed #3d3d5c; border-radius: 12px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; cursor: pointer; transition: border-color .15s, background .15s;
+    background: #12122a; position: relative; padding: 24px; text-align: center;
   }
   .drop-zone:hover    { border-color: #5b5bf0; background: rgba(99,102,241,.05); }
   .drop-zone.dragover { border-color: #6366f1; background: rgba(99,102,241,.1); }
   .drop-zone input    { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-
-  .dz-icon { font-size: 32px; line-height: 1; }
+  .dz-icon  { font-size: 32px; line-height: 1; }
   .dz-title { font-size: 13px; font-weight: 600; color: #c4b5fd; }
   .dz-sub   { font-size: 11px; color: #4a5568; }
   .dz-sub span { color: #6366f1; }
-
-  /* file loaded state */
   .file-badge {
-    display: none;
-    align-items: center;
-    gap: 8px;
-    background: rgba(99,102,241,.15);
-    border: 1px solid rgba(99,102,241,.3);
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 12px;
-    color: #a5b4fc;
-    word-break: break-all;
+    display: none; align-items: center; gap: 8px;
+    background: rgba(99,102,241,.15); border: 1px solid rgba(99,102,241,.3);
+    border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #a5b4fc; word-break: break-all;
   }
   .file-badge.show { display: flex; }
-  .file-badge-icon { font-size: 16px; flex-shrink: 0; }
   .file-badge-name { flex: 1; }
-  .file-badge-clear {
-    background: none; border: none; color: #64748b;
-    cursor: pointer; font-size: 14px; padding: 0; flex-shrink: 0;
-  }
+  .file-badge-clear { background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px; padding: 0; }
   .file-badge-clear:hover { color: #e2e8f0; }
-
-  /* ── Status ── */
   .status {
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 11.5px;
-    line-height: 1.5;
-    display: none;
-    gap: 8px;
-    align-items: flex-start;
+    border-radius: 8px; padding: 10px 12px; font-size: 11.5px;
+    line-height: 1.5; display: none; gap: 8px; align-items: flex-start;
   }
-  .status.show { display: flex; }
+  .status.show    { display: flex; }
   .status.info    { background: rgba(99,102,241,.12); color: #a5b4fc; border: 1px solid rgba(99,102,241,.2); }
   .status.success { background: rgba(16,185,129,.1);  color: #6ee7b7; border: 1px solid rgba(16,185,129,.2); }
   .status.error   { background: rgba(239,68,68,.1);   color: #fca5a5; border: 1px solid rgba(239,68,68,.2); }
   .status-icon { flex-shrink: 0; }
   .status-msg  { flex: 1; }
-
   @keyframes spin { to { transform: rotate(360deg); } }
   .spinner {
-    width: 13px; height: 13px;
-    border: 2px solid rgba(165,180,252,.3);
-    border-top-color: #a5b4fc;
-    border-radius: 50%;
-    animation: spin .65s linear infinite;
-    flex-shrink: 0; margin-top: 1px;
+    width: 13px; height: 13px; border: 2px solid rgba(165,180,252,.3);
+    border-top-color: #a5b4fc; border-radius: 50%;
+    animation: spin .65s linear infinite; flex-shrink: 0; margin-top: 1px;
   }
-
-  /* ── Progress bar ── */
-  .progress-wrap {
-    height: 3px; background: #2d2d4a; border-radius: 2px;
-    overflow: hidden; display: none;
-  }
+  .progress-wrap { height: 3px; background: #2d2d4a; border-radius: 2px; overflow: hidden; display: none; }
   .progress-wrap.show { display: block; }
   .progress-bar {
     height: 100%; width: 0%;
     background: linear-gradient(90deg, #6366f1, #8b5cf6);
-    border-radius: 2px;
-    transition: width .3s ease;
+    border-radius: 2px; transition: width .3s ease;
   }
-
-  /* ── Footer ── */
-  .footer {
-    padding: 12px 16px;
-    border-top: 1px solid #2d2d4a;
-    display: flex;
-    gap: 8px;
-    flex-shrink: 0;
-  }
+  .footer { padding: 12px 16px; border-top: 1px solid #2d2d4a; display: flex; gap: 8px; flex-shrink: 0; }
   button {
     height: 34px; border-radius: 8px; border: none;
-    font-size: 12px; font-weight: 600;
-    cursor: pointer; transition: opacity .15s, transform .1s;
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity .15s, transform .1s;
   }
   button:active { transform: scale(.97); }
-
-  .btn-primary {
-    flex: 1;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    color: #fff;
-  }
+  .btn-primary  { flex: 1; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
   .btn-primary:hover    { opacity: .88; }
   .btn-primary:disabled { opacity: .35; cursor: not-allowed; transform: none; }
-
-  .btn-secondary {
-    width: 72px;
-    background: #252540; color: #64748b; border: 1px solid #2d2d4a;
-  }
+  .btn-secondary { width: 72px; background: #252540; color: #64748b; border: 1px solid #2d2d4a; }
   .btn-secondary:hover { background: #2d2d4a; color: #94a3b8; }
-
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-thumb { background: #3d3d5c; border-radius: 2px; }
 </style>
@@ -176,33 +93,24 @@
 </div>
 
 <div class="body">
-
-  <!-- Drop zone -->
   <div class="drop-zone" id="dropZone">
     <input type="file" id="fileInput" accept=".html,.htm" />
-    <div class="dz-icon" id="dzIcon">📄</div>
+    <div class="dz-icon"  id="dzIcon">📄</div>
     <div class="dz-title" id="dzTitle">Drop ไฟล์ HTML ที่นี่</div>
-    <div class="dz-sub" id="dzSub">หรือ <span>คลิกเพื่อเลือกไฟล์</span> · .html, .htm</div>
+    <div class="dz-sub"   id="dzSub">หรือ <span>คลิกเพื่อเลือกไฟล์</span> · .html, .htm</div>
   </div>
-
-  <!-- File badge -->
   <div class="file-badge" id="fileBadge">
-    <span class="file-badge-icon">📄</span>
+    <span>📄</span>
     <span class="file-badge-name" id="fileBadgeName"></span>
-    <button class="file-badge-clear" id="fileClear" title="เลือกไฟล์ใหม่">✕</button>
+    <button class="file-badge-clear" id="fileClear">✕</button>
   </div>
-
-  <!-- Progress -->
   <div class="progress-wrap" id="progressWrap">
     <div class="progress-bar" id="progressBar"></div>
   </div>
-
-  <!-- Status -->
   <div class="status" id="status">
     <div class="status-icon" id="statusIcon"></div>
     <div class="status-msg"  id="statusMsg"></div>
   </div>
-
 </div>
 
 <div class="footer">
@@ -211,132 +119,410 @@
 </div>
 
 <script>
-var BROWSER_JS_SRC = "var htmlToFigma=function(e){var t={};function n(o){if(t[o])return t[o].exports;var r=t[o]={i:o,l:!1,exports:{}};return e[o].call(r.exports,r,r.exports,n),r.l=!0,r.exports}return n.m=e,n.c=t,n.d=function(e,t,o){n.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:o})},n.r=function(e){\"undefined\"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:\"Module\"}),Object.defineProperty(e,\"__esModule\",{value:!0})},n.t=function(e,t){if(1&t&&(e=n(e)),8&t)return e;if(4&t&&\"object\"==typeof e&&e&&e.__esModule)return e;var o=Object.create(null);if(n.r(o),Object.defineProperty(o,\"default\",{enumerable:!0,value:e}),2&t&&\"string\"!=typeof e)for(var r in e)n.d(o,r,function(t){return e[t]}.bind(null,r));return o},n.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return n.d(t,\"a\",t),t},n.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},n.p=\"\",n(n.s=0)}([function(e,t,n){\"use strict\";function o(e,t){return 1===t.length?t[0]:t.reduce((t,n)=>{if(!t)return n;const o=r(n)[e],i=r(t)[e];if(\"left\"===e||\"top\"===e){if(o<i)return n}else if(o>i)return n;return t},null)}function r(e){if(getComputedStyle(e).display.includes(\"inline\")&&e.children.length){const t=e.getBoundingClientRect(),n=function(e){if(!e.length)return null;const{top:t}=r(o(\"top\",e)),{left:n}=r(o(\"left\",e)),{bottom:i}=r(o(\"bottom\",e)),{right:l}=r(o(\"right\",e));return{top:t,left:n,bottom:i,right:l,width:l-n,height:i-t}}(Array.from(e.children));return t.width>n.width?Object.assign(Object.assign({},n),{width:t.width,left:t.left,right:t.right}):n}return e.getBoundingClientRect()}n.r(t);const i=e=>e&&Array.isArray(e.children);function l(e,t,n){e&&(t(e,n),i(e)&&e.children.forEach(n=>l(n,t,e)))}function c(e){let t=e;do{const e=getComputedStyle(t);if(\"none\"===e.display||\"hidden\"===e.visibility)return!0;if(\"visible\"!==e.overflow&&t.getBoundingClientRect().height<1)return!0}while(t=t.parentElement);return!1}function s(e){let t=e instanceof Node&&e.nodeType===Node.TEXT_NODE?e.parentElement:e;const n=[];for(;t&&(t=t.parentElement);)n.push(t);return n}function a(e){return s(e).length}const d=e=>{if(!e)return null;const t=e.match(/([\\d\\.]+)px/),n=null==t?void 0:t[1];return n?{unit:\"PIXELS\",value:parseFloat(n)}:null};function u(e){if(!e)return null;const[t,n,o,r,i,l]=e.match(/rgba?\\(([\\d\\.]+), ([\\d\\.]+), ([\\d\\.]+)(, ([\\d\\.]+))?\\)/)||[],c=l&&0===parseFloat(l);return n&&o&&r&&!c?{r:parseInt(n)/255,g:parseInt(o)/255,b:parseInt(r)/255,a:l?parseFloat(l):1}:null}const f=/^[0-9]+[a-zA-Z%]+?$/,h=e=>{if(!/px$/.test(e)&&\"0\"!==e)return 0;const t=parseFloat(e);return isNaN(t)?0:t},p=e=>{if(e.startsWith(\"rgb\")){const t=e.match(/(rgba?\\(.+?\\))(.+)/);t&&(e=(t[2]+\" \"+t[1]).trim())}const t=e.split(/\\s(?![^(]*\\))/),n=t.includes(\"inset\"),o=t.slice(-1)[0],r=(e=>\"0\"===e||f.test(e))(o)?\"rgba(0, 0, 0, 1)\":o,i=t.filter(e=>\"inset\"!==e).filter(e=>e!==r).map(h),[l,c,s,a]=i;return{inset:n,offsetX:l,offsetY:c,blurRadius:s,spreadRadius:a,color:r}};function g(e,t,n){e.data||(e.data={}),e.data[t]=n}const m=[\"opacity\",\"backgroundColor\",\"border\",\"borderTop\",\"borderLeft\",\"borderRight\",\"borderBottom\",\"borderRadius\",\"backgroundImage\",\"borderColor\",\"boxShadow\"];const y=e=>e[0].toUpperCase()+e.substring(1),b=({borderWidth:e,borderType:t,borderColor:n})=>e&&\"0\"!==e&&\"none\"!==t&&n;function E({dir:e,rect:t,computedStyle:n,el:o}){const r=n[\"border\"+y(e)];if(r){const n=r.match(/^([\\d\\.]+)px\\s*(\\w+)\\s*(.*)$/);if(n){const[r,i,l,c]=n;if(b({borderWidth:i,borderType:l,borderColor:c})){const n=u(c);if(n){const r=[\"top\",\"bottom\"].includes(e)?t.width:parseFloat(i),l=[\"left\",\"right\"].includes(e)?t.height:parseFloat(i),c={type:\"SOLID\",color:{r:n.r,b:n.b,g:n.g},opacity:n.a||1};return{ref:o,type:\"RECTANGLE\",x:\"left\"===e?t.left-r:\"right\"===e?t.right:t.left,y:\"top\"===e?t.top-l:\"bottom\"===e?t.bottom:t.top,width:r,height:l,fills:[c]}}}}}}const x=e=>{for(const t of Array.from(e.querySelectorAll(\"use\")))try{const e=t.href.baseVal,n=document.querySelector(e);n&&(t.outerHTML=n.innerHTML)}catch(e){console.warn(\"Error querying <use> tag href\",e)}},S=({node:e})=>{var t;const n=(null===(t=e.textContent)||void 0===t?void 0:t.trim())||\"\";if(!n.length)return;const o=e.parentElement;if(o){if(c(o))return;const t=getComputedStyle(o),r=document.createRange();r.selectNode(e);const i=(e=>\"symbol\"==typeof e?null:JSON.parse(JSON.stringify(e)))(r.getBoundingClientRect()),l=d(t.lineHeight);if(r.detach(),l&&i.height<l.value){const e=l.value-i.height;i.top-=e/2,i.height=l.value}if(i.height<1||i.width<1)return;const s={x:Math.round(i.left),ref:e,y:Math.round(i.top),width:Math.round(i.width),height:Math.round(i.height),type:\"TEXT\",characters:n.replace(/\\s+/g,\" \")},a=[],f=u(t.color);f&&a.push({type:\"SOLID\",color:{r:f.r,g:f.g,b:f.b},opacity:f.a||1}),a.length&&(s.fills=a);const h=d(t.letterSpacing);h&&(s.letterSpacing=h),l&&(s.lineHeight=l);const{textTransform:p}=t;switch(p){case\"uppercase\":s.textCase=\"UPPER\";break;case\"lowercase\":s.textCase=\"LOWER\";break;case\"capitalize\":s.textCase=\"TITLE\"}const g=d(t.fontSize);return g&&(s.fontSize=Math.round(g.value)),t.fontFamily&&(s.fontFamily=t.fontFamily),[\"underline\",\"strikethrough\"].includes(t.textDecoration)&&(s.textDecoration=t.textDecoration.toUpperCase()),[\"left\",\"center\",\"right\",\"justified\"].includes(t.textAlign)&&(s.textAlignHorizontal=t.textAlign.toUpperCase()),s}},T=({layer:e,root:t})=>{let n=null;try{l(t,t=>{if(t&&t.children&&t.children.includes(e))throw n=t,\"DONE\"})}catch(e){\"DONE\"===e||console.error(e instanceof Error?e.message:e)}return n},M=({root:e,layers:t})=>{e.children=t.slice(1),(({root:e,layers:t})=>{const n=new WeakMap;t.forEach(e=>{e.ref&&n.set(e.ref,e)});let o=!0,c=0;for(;o;){if(o=!1,c++>1e4){console.error(\"Too many tree iterations 1\");break}l(e,(t,r)=>{const l=t.ref;let c=l&&l.parentElement||null;do{if(c===document.body)break;if(c&&c!==document.body){const l=n.get(c);if(l===r)break;if(l&&l!==e){if(!i(l)){let i=l.ref;i&&i instanceof Node&&i.nodeType===Node.TEXT_NODE&&(i=i.parentElement);const s={type:\"FRAME\",clipsContent:!!(i instanceof Element&&\"visible\"!==getComputedStyle(i).overflow),x:l.x,y:l.y,width:l.width,height:l.height,ref:l.ref,backgrounds:[],children:[l,t]},a=T({layer:l,root:e});if(!a){console.warn(\"\\n\\nCANT FIND PARENT\\n\",JSON.stringify(Object.assign(Object.assign({},l),{ref:null})));continue}if(r){const e=r.children.indexOf(t);r.children.splice(e,1)}delete l.ref;const d=a.children.indexOf(l);return n.set(c,s),a.children.splice(d,1,s),void(o=!0)}if(r){const e=r.children.indexOf(t);return r.children.splice(e,1),l.children.push(t),void(o=!0)}}}}while(c&&(c=c.parentElement))})}let d=!0,u=0;for(;d;){if(u++>1e4){console.error(\"Too many tree iterations 2\");break}d=!1,l(e,(e,t)=>{if(!d&&\"FRAME\"===e.type){const t=e.ref;if(e.children&&e.children.length>2){const o=e.children&&e.children.map(e=>e.ref);let i=e.ref,l=a(i);for(const t of o){const n=o.filter(e=>e!==t),r=s(t);for(const t of n){const n=s(t);for(const t of n)if(r.includes(t)&&e.ref.contains(t)){const e=a(t);e>l&&(i=t,l=e)}}}if(i&&i!==e.ref){const o=e.children.filter(e=>i.contains(e.ref));if(o.length!==e.children.length){const l=r(i),c={type:\"FRAME\",clipsContent:!!(i instanceof Element&&\"visible\"!==getComputedStyle(i).overflow),ref:i,x:l.left,y:l.top,width:l.width,height:l.height,backgrounds:[],children:o};n.set(i,t);let s=e.children.length-1;for(const t of o){const n=e.children.indexOf(t);n>-1&&n<s&&(s=n)}e.children.splice(s,0,c);for(const t of o){const n=e.children.indexOf(t);n>-1&&e.children.splice(n,1)}d=!0}}}}})}l(e,e=>{if(\"FRAME\"===e.type||\"GROUP\"===e.type){const{x:t,y:n}=e;(t||n)&&l(e,o=>{o!==e&&(o.x=o.x-t,o.y=o.y-n)})}})})({root:e,layers:t});const n=[e];return function(e){e.forEach(e=>{l(e,e=>{if(\"SVG\"===e.type)e.constraints={horizontal:\"CENTER\",vertical:\"MIN\"};else{const t=e.ref;if(t){const n=t instanceof HTMLElement?t:t.parentElement,o=null==n?void 0:n.parentElement;if(n&&o){const t=n.style.display;n.style.setProperty(\"display\",\"none\",\"!important\");let r=getComputedStyle(n);const i=null==r?void 0:r.width.trim().endsWith(\"px\"),l=null==r?void 0:r.height.trim().endsWith(\"px\");n.style.display=t;const c=getComputedStyle(o);let s=\"auto\"===r.marginLeft,a=\"auto\"===r.marginRight,d=\"auto\"===r.marginTop,u=\"auto\"===r.marginBottom;if(r=getComputedStyle(n),[\"absolute\",\"fixed\"].includes(r.position)&&g(e,\"position\",r.position),l&&g(e,\"heightType\",\"fixed\"),i&&g(e,\"widthType\",\"fixed\"),r.display&&r.display.includes(\"inline\")){const t=c.textAlign;\"center\"===t?(s=!0,a=!0):\"right\"===t&&(s=!0),\"middle\"===r.verticalAlign?(d=!0,u=!0):\"bottom\"===r.verticalAlign&&(d=!0,u=!1),g(e,\"widthType\",\"shrink\")}const f=\"flex\"===c.display&&(\"row\"===c.flexDirection&&c.justifyContent||\"column\"===c.flexDirection&&c.alignItems);\"center\"===f?(s=!0,a=!0):f&&(f.includes(\"end\")||f.includes(\"right\"))&&(s=!0,a=!1);const h=\"flex\"===c.display&&(\"column\"===c.flexDirection&&c.justifyContent||\"row\"===c.flexDirection&&c.alignItems);\"center\"===h?(d=!0,u=!0):h&&(h.includes(\"end\")||h.includes(\"bottom\"))&&(d=!0,u=!1),\"TEXT\"===e.type&&(\"center\"===r.textAlign?(s=!0,a=!0):\"right\"===r.textAlign&&(s=!0,a=!1)),e.constraints={horizontal:s&&a?\"CENTER\":s?\"MAX\":\"SCALE\",vertical:u&&d?\"CENTER\":d?\"MAX\":\"MIN\"}}}else e.constraints={horizontal:\"SCALE\",vertical:\"MIN\"}}})})}(n),n};n.d(t,\"htmlToFigma\",function(){return R});const v=e=>{const t=e=>{var n;return Array.from((null===(n=e.shadowRoot)||void 0===n?void 0:n.querySelectorAll(\"*\"))||[]).reduce((e,n)=>[...e,n,...t(n)],[])};return Array.from(e.querySelectorAll(\"*\")).reduce((e,n)=>[...e,n,...t(n)],[])};const w=e=>{const t=[];if(c(e))return[];if(e instanceof SVGSVGElement)return t.push((e=>{const t=e.getBoundingClientRect();return{type:\"SVG\",ref:e,svg:e.outerHTML,x:Math.round(t.left),y:Math.round(t.top),width:Math.round(t.width),height:Math.round(t.height)}})(e)),t;if(e instanceof SVGElement)return[];if(e.parentElement instanceof HTMLPictureElement&&e instanceof HTMLSourceElement||e instanceof HTMLPictureElement)return[];const n=function(e,t){if(!(e instanceof HTMLElement||e instanceof SVGElement))return{};const n=getComputedStyle(e,t),o=n.color,r={transform:\"none\",opacity:\"1\",borderRadius:\"0px\",backgroundImage:\"none\",backgroundPosition:\"0% 0%\",backgroundSize:\"auto\",backgroundColor:\"rgba(0, 0, 0, 0)\",backgroundAttachment:\"scroll\",border:\"0px none \"+o,borderTop:\"0px none \"+o,borderBottom:\"0px none \"+o,borderLeft:\"0px none \"+o,borderRight:\"0px none \"+o,borderWidth:\"0px\",borderColor:o,borderStyle:\"none\",boxShadow:\"none\",fontWeight:\"400\",textAlign:\"start\",justifyContent:\"normal\",alignItems:\"normal\",alignSelf:\"auto\",flexGrow:\"0\",textDecoration:\"none solid \"+o,lineHeight:\"normal\",letterSpacing:\"normal\",backgroundRepeat:\"repeat\",zIndex:\"auto\"};return function(e,t){const n={};return t.forEach(t=>{e[t]&&e[t]!==r[t]&&(n[t]=e[t])}),n}(n,m)}(e),o=getComputedStyle(e);if((function(e){return Object.keys(e).length}(n)||e instanceof HTMLImageElement||e instanceof HTMLVideoElement)&&\"none\"!==o.display){const n=r(e);if(n.width>=1&&n.height>=1){const r=[],i=u(o.backgroundColor);if(i){const e={type:\"SOLID\",color:{r:i.r,g:i.g,b:i.b},opacity:i.a||1};r.push(e)}const l={type:\"RECTANGLE\",ref:e,x:Math.round(n.left),y:Math.round(n.top),width:Math.round(n.width),height:Math.round(n.height),fills:r},c=(({computedStyle:{border:e}})=>{if(e){const t=e.match(/^([\\d\\.]+)px\\s*(\\w+)\\s*(.*)$/);if(t){const[e,n,o,r]=t;if(b({borderWidth:n,borderType:o,borderColor:r})){const e=u(r);if(e)return{strokes:[{type:\"SOLID\",color:{r:e.r,b:e.b,g:e.g},opacity:e.a||1}],strokeWeight:Math.round(parseFloat(n))}}}}})({computedStyle:o});if(c&&Object.assign(l,c),!l.strokes)for(const r of[\"top\",\"left\",\"right\",\"bottom\"]){const i=E({dir:r,rect:n,computedStyle:o,el:e});i&&t.push(i)}const s=(({computedStyle:e,el:t})=>{if(t instanceof SVGSVGElement){return{url:`data:image/svg+xml,${encodeURIComponent(t.outerHTML.replace(/\\s+/g,\" \"))}`,type:\"IMAGE\",scaleMode:\"FILL\",imageHash:null}}{const n={type:\"IMAGE\",scaleMode:\"contain\"===e.objectFit?\"FIT\":\"FILL\",imageHash:null};if(t instanceof HTMLImageElement){const e=t.currentSrc;if(e)return Object.assign({url:e},n)}else if(t instanceof HTMLVideoElement){const e=t.poster;if(e)return Object.assign({url:e},n)}}if(e.backgroundImage&&\"none\"!==e.backgroundImage){const t=e.backgroundImage.match(/url\\(['\"]?(.*?)['\"]?\\)/),n=null==t?void 0:t[1];if(n)return{url:n,type:\"IMAGE\",scaleMode:\"contain\"===e.backgroundSize?\"FIT\":\"FILL\",imageHash:null}}})({computedStyle:o,el:e});s&&(r.push(s),l.name=\"IMAGE\");const a=(({computedStyle:{boxShadow:e}})=>{if(e&&\"none\"!==e){const t=p(e),n=u(t.color);if(n){return[{color:n,type:\"DROP_SHADOW\",radius:t.blurRadius,blendMode:\"NORMAL\",visible:!0,offset:{x:t.offsetX,y:t.offsetY}}]}}})({computedStyle:o});a&&(l.effects=a);const f=(({computedStyle:e})=>{const t=d(e.borderTopLeftRadius),n=d(e.borderTopRightRadius),o=d(e.borderBottomRightRadius),r=d(e.borderBottomLeftRadius);return Object.assign(Object.assign(Object.assign(Object.assign({},t?{topLeftRadius:t.value}:{}),n?{topRightRadius:n.value}:{}),o?{bottomRightRadius:o.value}:{}),r?{bottomLeftRadius:r.value}:{})})({computedStyle:o});Object.assign(l,f),t.push(l)}}return t};function R(e=\"body\",t=!1,n=!1){n&&console.time(\"Parse dom\");const o=[],r=e instanceof HTMLElement?e:document.querySelector(e||\"body\");if(r){x(r),v(r).forEach(e=>{const t=w(e);o.push(...t)});const e=function(e){let t=null;const n=[],o=document.createTreeWalker(e,NodeFilter.SHOW_TEXT,null);for(;t=o.nextNode();)n.push(t);return n}(r);for(const t of e){const e=S({node:t});e&&o.push(e)}}const i={type:\"FRAME\",width:Math.round(window.innerWidth),height:Math.round(document.documentElement.scrollHeight),x:0,y:0,ref:document.body};o.unshift(i);const c=t?M({layers:o,root:i}):o;return function({layers:e,root:t}){e.concat([t]).forEach(e=>{l(e,e=>{delete e.ref})})}({layers:c,root:i}),n&&(console.info(\"\\n\"),console.timeEnd(\"Parse dom\")),c}}]);";
-// ─── State ────────────────────────────────────────────────────────────────────
-var htmlContent = null;
-var fileName    = null;
-var converting  = false;
+// ─── Converter: injected into hidden iframe, builds nested FRAME tree ─────────
+// Mirrors html.to.design approach: DOM tree → Figma FRAME tree with Auto Layout
+var CONVERTER_SRC = (function() {
+/*CONVERTER_START*/
+function __convert() {
+  var win = window, doc = document;
 
-// ─── Elements ─────────────────────────────────────────────────────────────────
-var dropZone    = document.getElementById('dropZone');
-var fileInput   = document.getElementById('fileInput');
-var fileBadge   = document.getElementById('fileBadge');
+  // ── Utilities ───────────────────────────────────────────────────────────────
+  function px(v)  { return Math.round(parseFloat(v) || 0); }
+  function pxf(v) { return parseFloat(v) || 0; }
+
+  function parseColor(str) {
+    if (!str || str === 'transparent' || str === 'none') return null;
+    var m = str.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)/);
+    if (!m) return null;
+    var a = m[4] !== undefined ? parseFloat(m[4]) : 1;
+    if (a === 0) return null;
+    return { r: parseFloat(m[1])/255, g: parseFloat(m[2])/255, b: parseFloat(m[3])/255, a: a };
+  }
+
+  function mkFill(c) {
+    return { type: 'SOLID', color: { r: c.r, g: c.g, b: c.b }, opacity: c.a };
+  }
+
+  function fontFam(str) {
+    return (str || '').split(',')[0].replace(/['"]/g, '').trim() || 'Inter';
+  }
+
+  function elName(el) {
+    var t = el.tagName.toLowerCase();
+    if (el.id) return t + '#' + el.id;
+    if (el.className && typeof el.className === 'string') {
+      var c = el.className.trim().split(/\s+/)[0];
+      if (c) return t + '.' + c;
+    }
+    return t;
+  }
+
+  function parseShadow(str) {
+    if (!str || str === 'none') return null;
+    var m = str.match(/(-?[\d.]+)px\s+(-?[\d.]+)px\s+(-?[\d.]+)px(?:\s+(-?[\d.]+)px)?\s+(rgba?\([^)]+\))/);
+    if (!m) return null;
+    var c = parseColor(m[5]);
+    if (!c) return null;
+    return {
+      type: 'DROP_SHADOW', visible: true, blendMode: 'NORMAL',
+      offset: { x: pxf(m[1]), y: pxf(m[2]) },
+      radius: pxf(m[3]), spread: pxf(m[4]) || 0,
+      color: { r: c.r, g: c.g, b: c.b, a: c.a }
+    };
+  }
+
+  function borderInfo(style) {
+    var sides = ['Top','Right','Bottom','Left'];
+    var maxW = Math.max.apply(null, sides.map(function(s){ return pxf(style['border'+s+'Width']); }));
+    return { weight: maxW, color: parseColor(style.borderTopColor), style: style.borderTopStyle };
+  }
+
+  function applyRadius(node, style) {
+    var tl = px(style.borderTopLeftRadius),    tr = px(style.borderTopRightRadius);
+    var bl = px(style.borderBottomLeftRadius), br = px(style.borderBottomRightRadius);
+    if (tl===tr && tl===bl && tl===br) { if (tl > 0) node.cornerRadius = tl; }
+    else if (tl||tr||bl||br) {
+      node.topLeftRadius=tl; node.topRightRadius=tr;
+      node.bottomLeftRadius=bl; node.bottomRightRadius=br;
+    }
+  }
+
+  // Tags to skip entirely
+  var SKIP = { script:1, style:1, noscript:1, template:1, head:1, svg:1, canvas:1, math:1 };
+  var FORM = { input:1, textarea:1, select:1 };
+  var IMGS = { img:1, picture:1 };
+
+  var TA_MAP = { left:'LEFT', right:'RIGHT', center:'CENTER', justify:'JUSTIFIED', start:'LEFT', end:'RIGHT' };
+  var AI_MAP = { 'center':'CENTER', 'flex-end':'MAX', 'end':'MAX', 'stretch':'MIN', 'flex-start':'MIN', 'normal':'MIN', 'baseline':'MIN' };
+  var JC_MAP = { 'center':'CENTER', 'flex-end':'MAX', 'end':'MAX', 'space-between':'SPACE_BETWEEN', 'flex-start':'MIN', 'normal':'MIN', 'start':'MIN' };
+
+  // ── Text node builder ────────────────────────────────────────────────────────
+  function mkTextNode(el, style, x, y, w, h) {
+    var text = ((el.innerText !== undefined ? el.innerText : el.textContent) || '')
+                 .replace(/\r?\n/g, ' ').replace(/\s{2,}/g, ' ').trim();
+    if (!text) return null;
+    var fSz  = Math.max(1, px(style.fontSize) || 14);
+    var fCol = parseColor(style.color);
+    var lhRaw = style.lineHeight;
+    var lh = (lhRaw && lhRaw !== 'normal') ? { value: px(lhRaw), unit: 'PIXELS' } : { unit: 'AUTO' };
+    var ls = pxf(style.letterSpacing);
+    // Decide Figma textAutoResize mode:
+    // - nowrap/pre → WIDTH_AND_HEIGHT (never clips, expands naturally)
+    // - normal wrap → HEIGHT (fixed width, auto height)
+    var ws = style.whiteSpace || '';
+    var isNowrap = (ws === 'nowrap' || ws === 'pre' || ws === 'pre-wrap');
+    var autoResize = isNowrap ? 'WIDTH_AND_HEIGHT' : 'HEIGHT';
+
+    var n = {
+      type: 'TEXT', name: text.slice(0, 40),
+      x: x, y: y, width: Math.max(1,w), height: Math.max(1,h),
+      characters: text,
+      fontSize: fSz,
+      fontWeight: parseInt(style.fontWeight) || 400,
+      fontFamily: fontFam(style.fontFamily),
+      textAlignHorizontal: TA_MAP[style.textAlign] || 'LEFT',
+      lineHeight: lh,
+      fills: fCol ? [mkFill(fCol)] : [],
+      textAutoResize: autoResize
+    };
+    if (ls && !isNaN(ls) && ls !== 0) n.letterSpacing = { value: ls, unit: 'PIXELS' };
+    var td = style.textDecoration || '';
+    if (td.indexOf('underline')    !== -1) n.textDecoration = 'UNDERLINE';
+    else if (td.indexOf('line-through') !== -1) n.textDecoration = 'STRIKETHROUGH';
+    return n;
+  }
+
+  // ── Frame styling (fills, strokes, radius, etc.) ─────────────────────────────
+  function styleFrame(f, el, style) {
+    // Background
+    var bgc = parseColor(style.backgroundColor);
+    if (bgc) {
+      f.fills = [mkFill(bgc)];
+    } else if (style.backgroundImage && style.backgroundImage !== 'none') {
+      // gradient/image → light neutral placeholder so shape is visible
+      f.fills = [{ type:'SOLID', color:{r:.92,g:.92,b:.95}, opacity:1 }];
+    } else {
+      f.fills = [];
+    }
+
+    // Border
+    var bd = borderInfo(style);
+    if (bd.weight > 0 && bd.color) {
+      f.strokes      = [mkFill(bd.color)];
+      f.strokeWeight = bd.weight;
+      f.strokeAlign  = 'INSIDE';
+      if (bd.style === 'dashed') f.dashPattern = [6, 4];
+      else if (bd.style === 'dotted') f.dashPattern = [2, 3];
+    } else {
+      f.strokes = [];
+    }
+
+    // Radius
+    applyRadius(f, style);
+
+    // Opacity
+    var op = pxf(style.opacity);
+    if (op >= 0 && op < 1) f.opacity = op;
+
+    // Clip content — only for genuine scroll/overflow containers, NOT layout wrappers.
+    // Setting clipsContent=true on a wrapper frame causes text/children to be visually
+    // clipped even when textAutoResize=WIDTH_AND_HEIGHT. Default to false.
+    var ov = style.overflow, ovX = style.overflowX, ovY = style.overflowY;
+    var isScrollContainer = (ov === 'auto' || ov === 'scroll' || ovX === 'auto' || ovX === 'scroll' || ovY === 'auto' || ovY === 'scroll');
+    // Only clip if it's a scroll container with a defined height (not just a layout div)
+    if (isScrollContainer && px(style.height) > 0) {
+      f.clipsContent = true;
+    }
+
+    // Shadow
+    var sh = parseShadow(style.boxShadow);
+    f.effects = sh ? [sh] : [];
+  }
+
+  // ── Auto Layout from CSS Flexbox ─────────────────────────────────────────────
+  function applyAutoLayout(f, style) {
+    var dir = style.flexDirection || 'row';
+    f.layoutMode = (dir === 'column' || dir === 'column-reverse') ? 'VERTICAL' : 'HORIZONTAL';
+
+    var gap = pxf(style.gap) || 0;
+    f.itemSpacing = Math.round(
+      f.layoutMode === 'VERTICAL'
+        ? (pxf(style.rowGap) || gap)
+        : (pxf(style.columnGap) || gap)
+    );
+
+    f.paddingTop    = Math.round(pxf(style.paddingTop));
+    f.paddingRight  = Math.round(pxf(style.paddingRight));
+    f.paddingBottom = Math.round(pxf(style.paddingBottom));
+    f.paddingLeft   = Math.round(pxf(style.paddingLeft));
+
+    f.counterAxisAlignItems = AI_MAP[style.alignItems]     || 'MIN';
+    f.primaryAxisAlignItems = JC_MAP[style.justifyContent] || 'MIN';
+
+    // Force FIXED so the frame keeps its exact pixel dimensions from getBoundingClientRect
+    f.primaryAxisSizingMode = 'FIXED';
+    f.counterAxisSizingMode = 'FIXED';
+
+    if (style.flexWrap === 'wrap') f.layoutWrap = 'WRAP';
+  }
+
+  // ── Main recursive builder ───────────────────────────────────────────────────
+  function buildNode(el, parentLeft, parentTop) {
+    if (el.nodeType !== 1) return null;
+    var tag = el.tagName.toLowerCase();
+    if (SKIP[tag]) return null;
+
+    var style = win.getComputedStyle(el);
+    if (style.display === 'none') return null;
+    if (style.visibility === 'hidden') return null;
+    if (pxf(style.opacity) === 0) return null;
+
+    var rect = el.getBoundingClientRect();
+    var w = Math.round(rect.width), h = Math.round(rect.height);
+    if (w < 1 && h < 1) return null;
+
+    // Position relative to parent container
+    var x = Math.round(rect.left - parentLeft);
+    var y = Math.round(rect.top  - parentTop);
+
+    // ── <img> / <picture> ────────────────────────────────────────────────────
+    if (IMGS[tag]) {
+      return {
+        type: 'RECTANGLE', name: el.alt || 'image',
+        x: x, y: y, width: Math.max(1,w), height: Math.max(1,h),
+        fills: [{ type:'SOLID', color:{r:.85,g:.85,b:.88}, opacity:1 }],
+        strokes: [], effects: []
+      };
+    }
+
+    // ── <input> / <textarea> / <select> ─────────────────────────────────────
+    if (FORM[tag]) {
+      var frm = {
+        type: 'FRAME', name: elName(el),
+        x: x, y: y, width: Math.max(1,w), height: Math.max(1,h),
+        children: []
+      };
+      styleFrame(frm, el, style);
+      var val = (el.value || el.placeholder || '').trim();
+      if (val) {
+        var fSzI = Math.max(1, px(style.fontSize) || 14);
+        var fColI = parseColor(style.color);
+        var padL  = Math.round(pxf(style.paddingLeft));
+        var padT  = Math.round(pxf(style.paddingTop));
+        frm.children.push({
+          type: 'TEXT', name: val.slice(0, 30),
+          x: padL, y: padT,
+          width:  Math.max(1, w - padL - Math.round(pxf(style.paddingRight))),
+          height: Math.max(1, fSzI + 4),
+          characters: val,
+          fontSize: fSzI,
+          fontFamily: fontFam(style.fontFamily),
+          fontWeight: parseInt(style.fontWeight) || 400,
+          fills: fColI ? [mkFill(fColI)] : [{ type:'SOLID', color:{r:.4,g:.4,b:.4}, opacity:1 }],
+          textAlignHorizontal: TA_MAP[style.textAlign] || 'LEFT',
+          lineHeight: { unit: 'AUTO' },
+          textAutoResize: 'HEIGHT'
+        });
+      }
+      return frm;
+    }
+
+    // ── Decide: TEXT leaf vs container FRAME ─────────────────────────────────
+    // Text leaf = no element children, OR has direct text nodes (mixed inline content)
+    var hasElemChild  = false;
+    var hasDirectText = false;
+    for (var ci = 0; ci < el.childNodes.length; ci++) {
+      var cn = el.childNodes[ci];
+      if (cn.nodeType === 1) hasElemChild = true;
+      else if (cn.nodeType === 3 && cn.textContent.trim()) hasDirectText = true;
+    }
+
+    if (!hasElemChild || hasDirectText) {
+      var tn = mkTextNode(el, style, x, y, w, h);
+      if (tn) return tn;
+      // text was empty — fall through to container
+    }
+
+    // ── Container FRAME ──────────────────────────────────────────────────────
+    var isFlex = (style.display === 'flex' || style.display === 'inline-flex');
+    var frame = {
+      type: 'FRAME', name: elName(el),
+      x: x, y: y, width: Math.max(1,w), height: Math.max(1,h),
+      children: []
+    };
+    styleFrame(frame, el, style);
+    if (isFlex) applyAutoLayout(frame, style);
+
+    // Build children — coords relative to THIS element
+    for (var i = 0; i < el.children.length; i++) {
+      var child      = el.children[i];
+      var childStyle = win.getComputedStyle(child);
+      var childNode  = buildNode(child, rect.left, rect.top);
+      if (!childNode) continue;
+
+      // Absolutely positioned children inside an auto-layout frame
+      if (isFlex) {
+        var pos = childStyle.position;
+        if (pos === 'absolute' || pos === 'fixed') {
+          childNode.layoutPositioning = 'ABSOLUTE';
+        }
+      }
+
+      frame.children.push(childNode);
+    }
+
+    return frame;
+  }
+
+  // ── Root page frame ──────────────────────────────────────────────────────────
+  var pw = Math.round(win.innerWidth);
+  var ph = Math.round(Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight));
+  var bs = win.getComputedStyle(doc.body);
+  var bodyBg = parseColor(bs.backgroundColor)
+            || parseColor(win.getComputedStyle(doc.documentElement).backgroundColor)
+            || { r:1, g:1, b:1, a:1 };
+
+  var root = {
+    type: 'FRAME', name: 'Page',
+    x: 0, y: 0, width: pw, height: ph,
+    fills: [mkFill(bodyBg)], strokes: [], effects: [],
+    clipsContent: false, children: []
+  };
+
+  // Apply body flexbox if set
+  var bDisp = bs.display;
+  if (bDisp === 'flex' || bDisp === 'inline-flex') {
+    applyAutoLayout(root, bs);
+    root.clipsContent = false;
+    root.primaryAxisSizingMode = 'FIXED';
+    root.counterAxisSizingMode = 'FIXED';
+  }
+
+  for (var i = 0; i < doc.body.children.length; i++) {
+    var c = buildNode(doc.body.children[i], 0, 0);
+    if (c) root.children.push(c);
+  }
+
+  return [root];
+}
+/*CONVERTER_END*/
+  return __convert.toString() + '\nvar __layers = __convert(); window.parent.postMessage({ __h2f: true, layers: JSON.parse(JSON.stringify(__layers)) }, "*");';
+})();
+
+// ─── State ────────────────────────────────────────────────────────────────────
+var htmlContent = null, converting = false;
+
+var dropZone  = document.getElementById('dropZone');
+var fileInput = document.getElementById('fileInput');
+var fileBadge = document.getElementById('fileBadge');
 var fileBadgeName = document.getElementById('fileBadgeName');
-var fileClear   = document.getElementById('fileClear');
-var progressWrap = document.getElementById('progressWrap');
+var btnImport = document.getElementById('btnImport');
+var btnClose  = document.getElementById('btnClose');
 var progressBar  = document.getElementById('progressBar');
-var btnImport   = document.getElementById('btnImport');
-var btnClose    = document.getElementById('btnClose');
-var dzIcon  = document.getElementById('dzIcon');
-var dzTitle = document.getElementById('dzTitle');
-var dzSub   = document.getElementById('dzSub');
+var progressWrap = document.getElementById('progressWrap');
 
 // ─── File handling ────────────────────────────────────────────────────────────
 fileInput.addEventListener('change', function() {
   if (fileInput.files && fileInput.files[0]) loadFile(fileInput.files[0]);
 });
-
-dropZone.addEventListener('dragover', function(e) {
-  e.preventDefault();
-  dropZone.classList.add('dragover');
-});
-dropZone.addEventListener('dragleave', function() {
-  dropZone.classList.remove('dragover');
-});
+dropZone.addEventListener('dragover',  function(e) { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', function()  { dropZone.classList.remove('dragover'); });
 dropZone.addEventListener('drop', function(e) {
-  e.preventDefault();
-  dropZone.classList.remove('dragover');
-  var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-  if (file) loadFile(file);
+  e.preventDefault(); dropZone.classList.remove('dragover');
+  var f = e.dataTransfer && e.dataTransfer.files[0];
+  if (f) loadFile(f);
 });
-
-fileClear.addEventListener('click', function(e) {
-  e.stopPropagation();
-  clearFile();
+document.getElementById('fileClear').addEventListener('click', function(e) {
+  e.stopPropagation(); clearFile();
 });
 
 function loadFile(file) {
   var ext = (file.name || '').split('.').pop().toLowerCase();
-  if (ext !== 'html' && ext !== 'htm') {
-    return showStatus('error', '❌', 'กรุณาเลือกไฟล์ .html หรือ .htm เท่านั้น');
-  }
+  if (ext !== 'html' && ext !== 'htm') return showStatus('error','❌','เลือกเฉพาะ .html หรือ .htm');
   var reader = new FileReader();
   reader.onload = function(e) {
     htmlContent = e.target.result;
-    fileName    = file.name;
-    setFileLoaded(file.name);
-    showStatus('info', '📄', 'โหลดไฟล์ "' + file.name + '" แล้ว กด Import เพื่อเริ่ม');
+    fileBadgeName.textContent = file.name;
+    fileBadge.classList.add('show');
+    document.getElementById('dzIcon').textContent  = '✅';
+    document.getElementById('dzTitle').textContent = 'ไฟล์พร้อมแล้ว: ' + file.name;
+    document.getElementById('dzSub').innerHTML     = 'Drop ไฟล์ใหม่เพื่อเปลี่ยน';
+    btnImport.disabled = false;
+    showStatus('info','📄','โหลดไฟล์แล้ว กด Import เพื่อเริ่ม');
   };
   reader.readAsText(file);
 }
 
-function setFileLoaded(name) {
-  fileBadgeName.textContent = name;
-  fileBadge.classList.add('show');
-  dzIcon.textContent  = '✅';
-  dzTitle.textContent = 'ไฟล์พร้อมแล้ว';
-  dzSub.innerHTML     = 'กด Import หรือ Drop ไฟล์ใหม่เพื่อเปลี่ยน';
-  btnImport.disabled  = false;
-}
-
 function clearFile() {
-  htmlContent = null;
-  fileName    = null;
+  htmlContent = null; fileInput.value = '';
   fileBadge.classList.remove('show');
-  fileInput.value = '';
-  dzIcon.textContent  = '📄';
-  dzTitle.textContent = 'Drop ไฟล์ HTML ที่นี่';
-  dzSub.innerHTML     = 'หรือ <span>คลิกเพื่อเลือกไฟล์</span> · .html, .htm';
-  btnImport.disabled  = true;
-  hideStatus();
-  setProgress(0, false);
+  document.getElementById('dzIcon').textContent  = '📄';
+  document.getElementById('dzTitle').textContent = 'Drop ไฟล์ HTML ที่นี่';
+  document.getElementById('dzSub').innerHTML     = 'หรือ <span>คลิกเพื่อเลือกไฟล์</span> · .html, .htm';
+  btnImport.disabled = true;
+  hideStatus(); setProgress(0, false);
 }
 
 // ─── Import ───────────────────────────────────────────────────────────────────
 btnImport.addEventListener('click', function() {
   if (!htmlContent || converting) return;
-  startConversion();
+  converting = true; btnImport.disabled = true;
+  setProgress(10, true);
+  showStatus('loading', null, 'กำลัง render HTML ใน sandbox...');
+  runConversion(htmlContent);
 });
 
 btnClose.addEventListener('click', function() {
   parent.postMessage({ pluginMessage: { type: 'close' } }, '*');
 });
 
-function startConversion() {
-  converting = true;
-  btnImport.disabled = true;
-  setProgress(5, true);
-  showStatus('loading', null, 'กำลัง render HTML...');
-
-  // Use inlined browser.js source (embedded at build time)
-  Promise.resolve(BROWSER_JS_SRC)
-    .then(function(browserJsSrc) {
-      setProgress(15);
-      showStatus('loading', null, 'กำลัง render HTML ใน sandbox...');
-      return runConversion(htmlContent, browserJsSrc);
-    })
-    .then(function(layers) {
-      setProgress(90);
-      showStatus('loading', null, 'กำลังส่งข้อมูลไปยัง Figma...');
-      parent.postMessage({ pluginMessage: { type: 'import', layers: layers } }, '*');
-      // success/error shown via message from code.js
-    })
-    .catch(function(err) {
-      converting = false;
-      btnImport.disabled = false;
-      setProgress(0, false);
-      showStatus('error', '❌', err.message || String(err));
-    });
-}
-
-// ─── Conversion inside hidden iframe ─────────────────────────────────────────
-function waitForImages(doc, timeout) {
+// ─── Conversion ───────────────────────────────────────────────────────────────
+function waitForImages(doc, ms) {
   return new Promise(function(resolve) {
-    var imgs = Array.from(doc.querySelectorAll('img')).filter(function(i) { return !i.complete; });
+    var imgs = Array.from(doc.querySelectorAll('img')).filter(function(i){ return !i.complete; });
     if (!imgs.length) return resolve();
-    var pending = imgs.length;
-    var timer = setTimeout(resolve, timeout || 6000);
-    function done() { if (--pending <= 0) { clearTimeout(timer); resolve(); } }
+    var n = imgs.length, t = setTimeout(resolve, ms || 6000);
+    function done() { if (--n <= 0) { clearTimeout(t); resolve(); } }
     imgs.forEach(function(img) {
       img.addEventListener('load',  done, { once: true });
       img.addEventListener('error', done, { once: true });
@@ -344,87 +530,63 @@ function waitForImages(doc, timeout) {
   });
 }
 
-function runConversion(html, browserJsSrc) {
-  return new Promise(function(resolve, reject) {
-    var iframe = document.createElement('iframe');
-    iframe.style.cssText = 'position:absolute;left:-9999px;top:-9999px;width:1440px;height:900px;border:none;pointer-events:none;';
-    document.body.appendChild(iframe);
+function runConversion(html) {
+  var iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:absolute;left:-9999px;top:-9999px;width:1440px;height:900px;border:none;pointer-events:none;';
+  document.body.appendChild(iframe);
 
-    var CHANNEL = '__h2f_' + Date.now();
-    var done = false;
+  var done = false;
+  var timer = setTimeout(function() {
+    if (done) return; done = true; cleanup(iframe);
+    converting = false; btnImport.disabled = false;
+    setProgress(0, false);
+    showStatus('error','❌','Timeout — HTML ซับซ้อนเกินไป (30s)');
+  }, 30000);
 
-    var timer = setTimeout(function() {
-      if (done) return;
-      done = true;
-      cleanup(iframe);
-      reject(new Error('Conversion timeout (30s) — HTML อาจซับซ้อนเกินไป'));
-    }, 30000);
+  window.addEventListener('message', function handler(evt) {
+    if (evt.source !== iframe.contentWindow) return;
+    if (!evt.data || !evt.data.__h2f) return;
+    clearTimeout(timer);
+    window.removeEventListener('message', handler);
+    done = true; cleanup(iframe);
 
-    window.addEventListener('message', function handler(evt) {
-      if (evt.source !== iframe.contentWindow) return;
-      if (!evt.data || evt.data.__channel !== CHANNEL) return;
-      clearTimeout(timer);
-      window.removeEventListener('message', handler);
-      done = true;
-      cleanup(iframe);
-      if (evt.data.error) return reject(new Error(evt.data.error));
-      if (!evt.data.layers || !evt.data.layers.length) return reject(new Error('ไม่พบ elements ใน HTML ที่แปลงได้'));
-      resolve(evt.data.layers);
-    });
-
-    // Wait for iframe to load then inject scripts
-    iframe.addEventListener('load', function() {
-      setProgress(40);
-      showStatus('loading', null, 'รอรูปภาพโหลด...');
-
-      waitForImages(iframe.contentDocument, 6000).then(function() {
-        setProgress(65);
-        showStatus('loading', null, 'กำลังแปลง HTML → Figma layers...');
-
-        // Inject htmlToFigma library
-        var libScript = iframe.contentDocument.createElement('script');
-        libScript.textContent = browserJsSrc;
-        iframe.contentDocument.head.appendChild(libScript);
-
-        // Inject runner
-        var runScript = iframe.contentDocument.createElement('script');
-        runScript.textContent = [
-          '(function() {',
-          '  var CH = ' + JSON.stringify(CHANNEL) + ';',
-          '  try {',
-          '    var layers = window.htmlToFigma.htmlToFigma(document.body, true, false);',
-          '    var safe = JSON.parse(JSON.stringify(layers));',
-          '    window.parent.postMessage({ __channel: CH, layers: safe }, "*");',
-          '  } catch(e) {',
-          '    window.parent.postMessage({ __channel: CH, error: e.message }, "*");',
-          '  }',
-          '})();'
-        ].join('\n');
-        iframe.contentDocument.body.appendChild(runScript);
-      });
-    }, { once: true });
-
-    iframe.srcdoc = html;
+    var layers = evt.data.layers;
+    if (!layers || !layers.length) {
+      converting = false; btnImport.disabled = false;
+      setProgress(0, false);
+      return showStatus('error','❌','ไม่พบ elements ที่แปลงได้');
+    }
+    setProgress(90);
+    showStatus('loading', null, 'กำลังสร้าง layers ใน Figma...');
+    parent.postMessage({ pluginMessage: { type: 'import', layers: layers } }, '*');
   });
+
+  iframe.addEventListener('load', function() {
+    setProgress(40); showStatus('loading', null, 'รอ images โหลด...');
+    waitForImages(iframe.contentDocument, 5000).then(function() {
+      setProgress(70); showStatus('loading', null, 'กำลังวิเคราะห์ DOM tree และ layout...');
+      var script = iframe.contentDocument.createElement('script');
+      script.textContent = CONVERTER_SRC;
+      iframe.contentDocument.body.appendChild(script);
+    });
+  }, { once: true });
+
+  iframe.srcdoc = html;
 }
 
-function cleanup(iframe) {
-  try { document.body.removeChild(iframe); } catch(_) {}
-}
+function cleanup(iframe) { try { document.body.removeChild(iframe); } catch(_) {} }
 
-// ─── Messages from code.js ───────────────────────────────────────────────────
+// ─── Messages from code.js ────────────────────────────────────────────────────
 window.onmessage = function(e) {
   var msg = e.data && e.data.pluginMessage;
   if (!msg) return;
-  converting = false;
-  btnImport.disabled = false;
+  converting = false; btnImport.disabled = false;
   if (msg.type === 'success') {
     setProgress(100);
     setTimeout(function() { setProgress(0, false); }, 1500);
-    showStatus('success', '✅', msg.message);
+    showStatus('success','✅', msg.message);
   } else if (msg.type === 'error') {
-    setProgress(0, false);
-    showStatus('error', '❌', msg.message);
+    setProgress(0, false); showStatus('error','❌', msg.message);
   } else if (msg.type === 'progress') {
     showStatus('loading', null, msg.message);
   }
@@ -433,28 +595,17 @@ window.onmessage = function(e) {
 // ─── UI helpers ───────────────────────────────────────────────────────────────
 function showStatus(type, icon, text) {
   var el = document.getElementById('status');
-  var iconEl = document.getElementById('statusIcon');
-  var msgEl  = document.getElementById('statusMsg');
+  var ic = document.getElementById('statusIcon');
+  var ms = document.getElementById('statusMsg');
   el.className = 'status show ' + (type === 'loading' ? 'info' : type);
-  if (type === 'loading') {
-    iconEl.innerHTML = '<div class="spinner"></div>';
-  } else {
-    iconEl.textContent = icon || '';
-  }
-  msgEl.textContent = text;
+  ic.innerHTML = type === 'loading' ? '<div class="spinner"></div>' : (icon || '');
+  ms.textContent = text;
 }
-
-function hideStatus() {
-  document.getElementById('status').className = 'status';
-}
-
+function hideStatus() { document.getElementById('status').className = 'status'; }
 function setProgress(pct, show) {
   progressBar.style.width = pct + '%';
-  if (show === false) {
-    progressWrap.classList.remove('show');
-  } else if (pct > 0) {
-    progressWrap.classList.add('show');
-  }
+  if (show === false) progressWrap.classList.remove('show');
+  else if (pct > 0)   progressWrap.classList.add('show');
 }
 </script>
 </body>
